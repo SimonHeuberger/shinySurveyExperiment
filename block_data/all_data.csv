@@ -1,0 +1,5 @@
+"id","age","race","gender","att","empl","inc","pid","ideol","interest","education","mw","mw.group","tb","tb.group"
+"survey-773-922-594",18,3,1,2,2,5,4,2,2,5,2,"mw.p.supp",3,"tb.p.supp"
+"survey-695-240-144",18,2,2,4,3,2,3,2,2,6,2,"mw.p.supp",5,"tb.p.supp"
+"survey-653-166-104",34,3,2,4,2,4,3,2,2,4,2,"mw.p.supp",3,"tb.p.supp"
+"survey-613-398-181",18,2,2,3,2,4,4,2,2,4,3,"mw.p.opp",2,"tb.m.supp"

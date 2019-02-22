@@ -1,0 +1,3 @@
+id	text	page	type	choices	choiceNames	reverse	placeholder	min	max	disabled	checkType	width	height	inline	randomize
+NA	Treatments	1	h2	NA	NA	NA	NA	NA	NA	0	NA	500px	NA	NA	0
+treat	Treatment1	1	radioButtons	1,2,3,4,5	aa,bb,cc,dd,ee	NA	NA	NA	NA	1	is.null	500px	NA	0	0

@@ -1,0 +1,10 @@
+name: survey_experiment
+title:
+username:
+account: sheuberger
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 726908
+bundleId: 1885487
+url: https://sheuberger.shinyapps.io/survey_experiment/
+when: 1550610585.77244
