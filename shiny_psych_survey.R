@@ -7,7 +7,7 @@
 
 
 # Working directory, libraries
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny")
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 library(shiny)
 library(shinyjs)
 library(ShinyPsych)

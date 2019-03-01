@@ -1,7 +1,7 @@
 
 #### ShinyPsych code that I am gradually changing/extending to fit my needs ####
 
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny")
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 library(shiny)
 library(shinyjs)
 library(ShinyPsych)

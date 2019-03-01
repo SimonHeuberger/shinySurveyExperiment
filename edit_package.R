@@ -2,7 +2,7 @@
 
 ## Edit my questions
 
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny/questions")
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/questions")
 filed <- "instructions"
 filed <- "demographics"
 filed <- "code"
@@ -10,7 +10,7 @@ filed <- "goodbye"
 filed <- "party"
 filed <- "education"
 
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny/questions/treatment")
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/questions/treatment")
 filed <- "mw.control"
 filed <- "mw.m.opp"
 filed <- "mw.m.supp"
@@ -38,7 +38,7 @@ write.csv(inst.df, file = paste(filee,".csv", sep = ""), row.names = F)         
 system(paste("open", paste(filee,".csv", sep = "")))                                   # open the .csv in Excel where I can edit and save it
 
 ## Run modified ShinyPsych code to structure setup; create app (.csv files are saved on AU Dropbox)
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny")
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 source("shiny_psych_survey.R")
 shinyApp(ui = ui, server = server)
 
@@ -47,13 +47,13 @@ shinyApp(ui = ui, server = server)
 
 
 ## Test deployed app code after I make any manual changes
-setwd('/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny/survey_experiment')
+setwd('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/survey_experiment')
 library(shiny)
 runApp()
 
 ## (Re-)Deploy app
 library(rsconnect)
-rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny/survey_experiment')
+rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/survey_experiment')
 Y
 
 
@@ -76,17 +76,17 @@ loaddata <- function() {                     # loads all responses from AU Dropb
   write.csv(data, file = "block_data/all_data.csv", row.names = F) 
 }
 
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny")
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 loaddata()
+# Currently not working for some reason, opened an issue: https://github.com/karthik/rdrop2/issues/166
 all_data <- read.csv("block_data/all_data.csv")
 View(all_data)
-
 
 
 #### Comparing to the original version of shinyPsych ####
 
 ## Run original ShinyPsych code; create app (.csv files are saved locally in /original_data)
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___sequential_blocking/shiny")
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 source("/Library/Frameworks/R.framework/Versions/3.5/Resources/library/ShinyPsych/shiny-examples/Survey/app.R")
 shinyApp(ui = ui, server = server)
 
