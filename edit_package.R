@@ -65,6 +65,7 @@ loaddata <- function() {                     # loads all responses from AU Dropb
   library(rdrop2)
   outputDir <- "block_data"
   # Read in all .csv files
+  rdrop2:::drop_is_folder(outputDir)
   filesInfo <- drop_dir(outputDir)
   filePaths <- filesInfo$path_display
   # Turn all files into a list
@@ -75,6 +76,8 @@ loaddata <- function() {                     # loads all responses from AU Dropb
   # Write data frame to .csv in local folder /block_data
   write.csv(data, file = "block_data/all_data.csv", row.names = F) 
 }
+
+
 
 setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 loaddata()
