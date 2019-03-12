@@ -60,10 +60,14 @@ Y
 #### Data analysis ####
 
 ## Run the loadData() function to download/list/unlist the data from Dropbox; read in the .csv; look at the data
-loaddata <- function() {                     # loads all responses from AU Dropbox /block_data
+
+library(rdrop2)
+library(plyr)
+drop_auth(rdstoken = "droptoken.rds")
+loaddata <- function() {                     
   # Load library and set outputDir
   library(rdrop2)
-  outputDir <- "block_data"
+  outputDir <- "block_data"              # loads all responses from AU Dropbox /block_data
   # Read in all .csv files
   rdrop2:::drop_is_folder(outputDir)
   filesInfo <- drop_dir(outputDir)
@@ -71,17 +75,14 @@ loaddata <- function() {                     # loads all responses from AU Dropb
   # Turn all files into a list
   data <- lapply(filePaths, drop_read_csv, stringsAsFactors = FALSE)
   # Concatenate all data together into one data frame
-  library(plyr)
   data <- ldply(data, data.frame)
   # Write data frame to .csv in local folder /block_data
   write.csv(data, file = "block_data/all_data.csv", row.names = F) 
 }
 
 
-
 setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 loaddata()
-# Currently not working for some reason, opened an issue: https://github.com/karthik/rdrop2/issues/166
 all_data <- read.csv("block_data/all_data.csv")
 View(all_data)
 
