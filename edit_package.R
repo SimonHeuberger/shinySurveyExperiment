@@ -66,8 +66,7 @@ library(plyr)
 drop_auth(rdstoken = "droptoken.rds")
 loaddata <- function() {                     
   # Load library and set outputDir
-  library(rdrop2)
-  outputDir <- "block_data"              # loads all responses from AU Dropbox /block_data
+  outputDir <- "alldata"              # loads all responses from AU Dropbox /alldata
   # Read in all .csv files
   rdrop2:::drop_is_folder(outputDir)
   filesInfo <- drop_dir(outputDir)
@@ -76,14 +75,14 @@ loaddata <- function() {
   data <- lapply(filePaths, drop_read_csv, stringsAsFactors = FALSE)
   # Concatenate all data together into one data frame
   data <- ldply(data, data.frame)
-  # Write data frame to .csv in local folder /block_data
-  write.csv(data, file = "block_data/all_data.csv", row.names = F) 
+  # Write data frame to .csv in local folder /alldata
+  write.csv(data, file = "alldata/all_data.csv", row.names = F) 
 }
 
 
 setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 loaddata()
-all_data <- read.csv("block_data/all_data.csv")
+all_data <- read.csv("alldata/all_data.csv")
 View(all_data)
 
 
