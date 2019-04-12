@@ -77,14 +77,14 @@ mw.file <- "seqmw.RData"
 tb.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*tb.*.txt"))
 tb.file <- "seqtb.RData"
 
-# Run seqblock() once for each issue
-seqblock(query = FALSE, id.vars = "ID", id.vals = 1, exact.vars = "education", exact.vals = 7, file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-seqblock(query = FALSE, id.vars = "ID", id.vals = 1, exact.vars = "education", exact.vals = 7, file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
+# Run seqblock() once for each issue. exact.vars only considers exact variables. covar.vars calculates the distribution. The latter is what I want
+seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", covar.vals = 7, file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
+seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", covar.vals = 7, file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
+
 
 # Upload created .RData files
 sequpload(mw.file)
 sequpload(tb.file)
-
 
 
 
@@ -130,7 +130,7 @@ server <- function(input, output, session) {
     # observeEvent() is triggered based on event. Anything in here cannot be used in later functions
     # When users hit "Continue" on the education page, it downloads the mw .RData file, blocks on existing data and the current user, then uploads the new .RData file
     # input[[paste(str_to_title(ed), "_next", sep = "")]] is code for the "Continue" button
-    # input[[paste(str\_to\_title(ed), "\_educ", sep = "")]] pulls in the user-selected education category
+    # input[[paste(str\_to\_title(ed), "\_educ", sep = "")]] pulls in the user-selected education category. I have to put as.numeric() around it because it's pulled as a factor, and factors don't work with covar.vals
     # id.vals creates the user id. It takes the last current row of the .RData file and adds 1
     # bdata is simply the name of the object when the mw .RData file is loaded. It's something in Ryan's package code. bdata$x is the data frame with the IDs, blocked education categories, and assigned treatment groups
   
@@ -143,7 +143,7 @@ server <- function(input, output, session) {
             load(mw.file)
 
             seqblock(query = FALSE, object = mw.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
-                     exact.vals = input[[paste(str_to_title(ed), "_educ", sep = "")]],
+                     covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                      file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
             sequpload(mw.file)
             
@@ -174,7 +174,7 @@ server <- function(input, output, session) {
             load(tb.file)
             
             seqblock(query = FALSE, object = tb.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
-                     exact.vals = input[[paste(str_to_title(ed), "_educ", sep = "")]],
+                     covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                      file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
             sequpload(tb.file)
             

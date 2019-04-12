@@ -1,9 +1,5 @@
-# From blockTools documentation
 
-## Assign first unit (assume a 25 year old member of the Republican Party) to a treatment group. ## Save the results in file "sdata.RData":
-## seqblock(query = FALSE, id.vars = "ID", id.vals = 001, exact.vars = "party", exact.vals = "Republican", covar.vars = "age", covar.vals = 25, file.name = "sdata.RData")
-## Assign next unit (age 30, Democratic Party):
-## seqblock(query = FALSE, object = "sdata.RData", id.vals = 002, exact.vals = "Democrat", ## covar.vars = "age", covar.vals = 30, file.name = "sdata.RData")
+###### Very minimal example, set up so that I have to change as little as possible if things change ######
 
 
 
@@ -16,15 +12,14 @@ library(shinyjs)
 library(ShinyPsych)
 library(rdrop2)
 library(stringr)
-library(blockTools)
-library(rdrop2)
-library(plyr)
 
 # Dropbox directory to save data
-outputDir <- "alldata" 
-drop_auth(rdstoken = "droptoken.rds")
+outputDir <- "block_data" 
 
-# Function that saves each response as a .csv file to AU Dropbox /alldata
+token<-drop_auth()
+saveRDS(token, "droptoken.rds")
+
+# Function that saves each response as a .csv file to AU Dropbox /block_data
 # Defined here; executed in the app
 savedata <- function(data) {                 
   data <- t(data)
@@ -37,16 +32,6 @@ savedata <- function(data) {
   drop_upload(filePath, path = outputDir)
 }
 
-# Function that uploads a file to Dropbox/seqblock and overwrites any pre-existing file
-sequpload <- function(file) {
-  drop_upload(file, path = "seqblock", mode = "overwrite")
-}
-
-# Function that downloads a file from Dropbox/seqblock and overwrites any pre-existing file
-seqdownload <- function(file) {
-  drop_download(paste("seqblock", file, sep = "/"), overwrite = TRUE)
-}
-
 # Load the non-treatment question files, pull their names, save short versions for later
 temp <- tools::file_path_sans_ext(list.files("questions", pattern = "*.txt"))
 co <- temp[1]  # these need to be in alphabetical order, otherwise they are mislabelled
@@ -55,9 +40,12 @@ ed <- temp[3]
 gb <- temp[4]
 ins <- temp[5]
 
-# Treatment question names (they are needed for idsVec below)
-issue1 <- "mw"
-issue2 <- "tb"
+# Load the treatment question files, sample one per issue, save "mw" and "tb" for later
+# Note that these comes from the /treatment subfolder
+mw.sample <- sample(list.files("questions/treatment", pattern="^.*mw.*.txt"), 1, replace = TRUE)
+tb.sample <- sample(list.files("questions/treatment", pattern="^.*tb.*.txt"), 1, replace = TRUE)
+issue1 <- substr(mw.sample, 1, 2)  # deletes all characters except the last two, resulting in mw
+issue2 <- substr(tb.sample, 1, 2)  # same for tb
 
 # All these short versions are used in the code later with paste, assign etc. That way I only have to adjust things once at the beginning
 # The only exception are the samples, because otherwise I would keep resampling and messing things up
@@ -65,24 +53,9 @@ issue2 <- "tb"
 # They show up later several times with "assign"
 # There is no point in keeping them up here because I needed to copy-paste the "assign"s anyway in order to keep using paste
 
+
 # Vector with page ids used to later access objects
 idsVec <- c(str_to_title(ins), str_to_title(ed), str_to_title(issue1), str_to_title(issue2), str_to_title(co), str_to_title(gb), str_to_title(dem))
-
-# Specifications to run seqblock(), so that I don't have to retype them
-n.tr <- 5
-mw.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*mw.*.txt"))
-mw.file <- "seqmw.RData"
-tb.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*tb.*.txt"))
-tb.file <- "seqtb.RData"
-
-# Run seqblock() once for each issue. exact.vars only considers exact variables. covar.vars calculates the distribution. The latter is what I want
-seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", covar.vals = 7, file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", covar.vals = 7, file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-
-
-# Upload created .RData files
-sequpload(mw.file)
-sequpload(tb.file)
 
 
 
@@ -121,77 +94,8 @@ server <- function(input, output, session) {
                                   complCode = TRUE,           # create a completion code
                                   complName = "survey")    # first element of completion code
 
-
   
-############# Section A: Blocking Code #############
-  
-    # observeEvent() is triggered based on event. Anything in here cannot be used in later functions
-    # When users hit "Continue" on the education page, it downloads the mw .RData file, blocks on existing data and the current user, then uploads the new .RData file
-    # input[[paste(str_to_title(ed), "_next", sep = "")]] is code for the "Continue" button
-    # input[[paste(str\_to\_title(ed), "\_educ", sep = "")]] pulls in the user-selected education category. I have to put as.numeric() around it because it's pulled as a factor, and factors don't work with covar.vals
-    # id.vals creates the user id. It takes the last current row of the .RData file and adds 1
-    # bdata is simply the name of the object when the mw .RData file is loaded. It's something in Ryan's package code. bdata$x is the data frame with the IDs, blocked education categories, and assigned treatment groups
-  
-    observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
-          withProgress(message = "", value = 0, {
-     
-            incProgress(.25)
-
-            seqdownload(mw.file)
-            load(mw.file)
-
-            seqblock(query = FALSE, object = mw.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
-                     covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
-                     file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-            sequpload(mw.file)
-            
-          })
-    )})
-  
-
-    # eventReactive() creates a reactive object that changes based on the event. This object can be used in later functions
-    # When users hit "Continue" on the education page, it downloads the mw .RData file, extracts the assigned treatment group for the current user, and saves it for later use to display the correct treatment page
-    # I have to download the mw .RData file again because it can't be used outside of observeEvent() above (and I don't know if they can be combined)
-    # paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "") extracts the assigned treatment group, adds .txt, and saves that string. This is to identify and display the correct treatment page below
-    mw.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
-          
-            seqdownload(mw.file)
-            load(mw.file)
-            paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "")
-
-    })
-    
-    
-    # The same as above, just for tb
-    observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
-          withProgress(message = "", value = 0, {
-     
-            incProgress(.25)
-
-            seqdownload(tb.file)
-            load(tb.file)
-            
-            seqblock(query = FALSE, object = tb.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
-                     covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
-                     file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-            sequpload(tb.file)
-            
-          })
-    )})
-    
-    # The same as above, just for tb
-    tb.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
-          
-            seqdownload(tb.file)
-            load(tb.file)
-            paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "")
-
-    })
-    
-    
-
-    
-############# Section B: Page Layouts #############
+############# Section A: Page Layouts #############
 
   PageLayouts <- reactive({
 
@@ -245,7 +149,7 @@ server <- function(input, output, session) {
         # "assign" reates the object mw.list that reads in whatever mw question file was sampled
         # The rest creates the html logic of the mw page
         createPage(pageList = assign(paste(issue1, ".list", sep = ""), 
-                                     createPageList(fileName = paste("questions/treatment/", mw.sample(), sep = ""),
+                                     createPageList(fileName = paste("questions/treatment/", mw.sample, sep = ""),
                                      globId = str_to_title(issue1), defaulttxt = FALSE)), 
                    pageNumber = CurrentValues[[paste(str_to_title(issue1), ".num", sep = "")]],
                    globId = str_to_title(issue1), ctrlVals = CurrentValues)
@@ -256,7 +160,7 @@ server <- function(input, output, session) {
         # "assign" reates the object tb.list that reads in whatever tb question file was sampled
         # The rest creates the html logic of the tb page
         createPage(pageList = assign(paste(issue2, ".list", sep = ""), 
-                                     createPageList(fileName = paste("questions/treatment/", tb.sample(), sep = ""),
+                                     createPageList(fileName = paste("questions/treatment/", tb.sample, sep = ""),
                                      globId = str_to_title(issue2), defaulttxt = FALSE)), 
                    pageNumber = CurrentValues[[paste(str_to_title(issue2), ".num", sep = "")]],
                    globId = str_to_title(issue2), ctrlVals = CurrentValues)
@@ -294,7 +198,7 @@ server <- function(input, output, session) {
    
   
 
-############# Section C: Page Navigation Buttons #############
+############# Section B: Page Navigation Buttons #############
 
     # All "assign"s are simply copied from above  
     observeEvent(input[[paste(str_to_title(ins), "_next", sep = "")]],{
@@ -326,7 +230,7 @@ server <- function(input, output, session) {
   observeEvent(input[[paste(str_to_title(issue1), "_next", sep = "")]],{
     nextPage(pageId = issue1, ctrlVals = CurrentValues,
              nextPageId = issue2, pageList = assign(paste(issue1, ".list", sep = ""), 
-                                                            createPageList(fileName = paste("questions/treatment/", mw.sample(), sep = ""),
+                                                            createPageList(fileName = paste("questions/treatment/", mw.sample, sep = ""),
                                                             globId = str_to_title(issue1), defaulttxt = FALSE)),
              globId = str_to_title(issue1))
   })
@@ -334,7 +238,7 @@ server <- function(input, output, session) {
   observeEvent(input[[paste(str_to_title(issue2), "_next", sep = "")]],{
     nextPage(pageId = issue2, ctrlVals = CurrentValues,
              nextPageId = co, pageList = assign(paste(issue2, ".list", sep = ""), 
-                                                    createPageList(fileName = paste("questions/treatment/", tb.sample(), sep = ""),
+                                                    createPageList(fileName = paste("questions/treatment/", tb.sample, sep = ""),
                                                     globId = str_to_title(issue2), defaulttxt = FALSE)),
              globId = str_to_title(issue2))
   })
@@ -342,7 +246,7 @@ server <- function(input, output, session) {
 
   
   
-############# Section D: Event Control #############
+############# Section C: Event Control #############
 
   # Make sure answers are selected
   # As before, all "assign"s are simply copied from above  
@@ -372,14 +276,14 @@ server <- function(input, output, session) {
 
     onInputEnable(pageId = issue1, ctrlVals = CurrentValues,
                   pageList = assign(paste(issue1, ".list", sep = ""), 
-                                    createPageList(fileName = paste("questions/treatment/", mw.sample(), sep = ""),
+                                    createPageList(fileName = paste("questions/treatment/", mw.sample, sep = ""),
                                     globId = str_to_title(issue1), defaulttxt = FALSE)), 
                   globId = str_to_title(issue1),
                   inputList = input)
     
     onInputEnable(pageId = issue2, ctrlVals = CurrentValues,
                   pageList = assign(paste(issue2, ".list", sep = ""), 
-                                    createPageList(fileName = paste("questions/treatment/", tb.sample(), sep = ""),
+                                    createPageList(fileName = paste("questions/treatment/", tb.sample, sep = ""),
                                     globId = str_to_title(issue2), defaulttxt = FALSE)), 
                   globId = str_to_title(issue2),
                   inputList = input)
@@ -399,7 +303,7 @@ server <- function(input, output, session) {
 
   
   
-############# Section E: Save data #############
+############# Section D: Save data #############
 
   observeEvent(input[[paste(str_to_title(co), "_next", sep = "")]], {(
 
@@ -423,9 +327,9 @@ server <- function(input, output, session) {
       data.list[["interest"]] <- input[[paste(str_to_title(dem), "_interest", sep = "")]]
       data.list[[paste(ed)]] <- input[[paste(str_to_title(ed), "_educ", sep = "")]]
       data.list[[paste(issue1)]] <- input[[paste(str_to_title(issue1), "_treat", sep = "")]]
-      data.list[[paste(issue1, ".group", sep = "")]] <- tools::file_path_sans_ext(mw.sample())
+      data.list[[paste(issue1, ".group", sep = "")]] <- tools::file_path_sans_ext(mw.sample)
       data.list[[paste(issue2)]] <- input[[paste(str_to_title(issue2), "_treat", sep = "")]]
-      data.list[[paste(issue2, ".group", sep = "")]] <- tools::file_path_sans_ext(tb.sample())
+      data.list[[paste(issue2, ".group", sep = "")]] <- tools::file_path_sans_ext(tb.sample)
 
       
       savedata(data.list)                     # this is where the created function savedata() is executed
