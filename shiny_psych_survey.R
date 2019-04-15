@@ -23,7 +23,8 @@ library(rdrop2)
 library(plyr)
 
 # Dropbox directory to save data
-outputDir <- "alldata" 
+csv.dropdir <- "alldata" 
+rdata.dropdir <- "seqblock"
 drop_auth(rdstoken = "droptoken.rds")
 
 # Function that saves each response as a .csv file to AU Dropbox /alldata
@@ -35,18 +36,18 @@ savedata <- function(data) {
   # Write the data to a temporary file locally
   filePath <- file.path(tempdir(), fileName)
   write.csv(data, filePath, row.names = FALSE, quote = TRUE)
-  # Upload the file to Dropbox outputDir
-  drop_upload(filePath, path = outputDir)
+  # Upload the file to Dropbox/alldata
+  drop_upload(filePath, path = csv.dropdir)
 }
 
 # Function that uploads a file to Dropbox/seqblock and overwrites any pre-existing file
 sequpload <- function(file) {
-  drop_upload(file, path = "seqblock", mode = "overwrite")
+  drop_upload(file, path = rdata.dropdir, mode = "overwrite")
 }
 
 # Function that downloads a file from Dropbox/seqblock and overwrites any pre-existing file
 seqdownload <- function(file) {
-  drop_download(paste("seqblock", file, sep = "/"), overwrite = TRUE)
+  drop_download(paste(rdata.dropdir, file, sep = "/"), overwrite = TRUE)
 }
 
 # Load the non-treatment question files, pull their names, save short versions for later
@@ -76,15 +77,6 @@ mw.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern=
 mw.file <- "seqmw.RData"
 tb.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*tb.*.txt"))
 tb.file <- "seqtb.RData"
-
-# Run seqblock() once for each issue. exact.vars only considers exact variables. covar.vars calculates the distribution. The latter is what I want
-seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", covar.vals = 7, file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", covar.vals = 7, file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-
-
-# Upload created .RData files
-sequpload(mw.file)
-sequpload(tb.file)
 
 
 
@@ -128,7 +120,10 @@ server <- function(input, output, session) {
 ############# Section A: Blocking Code #############
   
     # observeEvent() is triggered based on event. Anything in here cannot be used in later functions
-    # When users hit "Continue" on the education page, it downloads the mw .RData file, blocks on existing data and the current user, then uploads the new .RData file
+    # The 'event' here is when users hit "Continue" on the education page
+    # If the mw .RData file exists in seqblock/ on Dropbox, the current user is not the first respondent. The function then downloads the file, blocks on the existing data and the current user, then uploads the new .RData file
+    # If the mw .RData file does not exist in seqblock/ on Dropbox, the current user is the first respondent. The function then blocks on only the current user, then uploads the resulting .RData file
+    # Except for the first respondent to answer the survey, the code always reads in the existing .RData file with pre-assigned respondents
     # input[[paste(str_to_title(ed), "_next", sep = "")]] is code for the "Continue" button
     # input[[paste(str\_to\_title(ed), "\_educ", sep = "")]] pulls in the user-selected education category. I have to put as.numeric() around it because it's pulled as a factor, and factors don't work with covar.vals
     # id.vals creates the user id. It takes the last current row of the .RData file and adds 1
@@ -138,15 +133,24 @@ server <- function(input, output, session) {
           withProgress(message = "", value = 0, {
      
             incProgress(.25)
-
-            seqdownload(mw.file)
-            load(mw.file)
-
-            seqblock(query = FALSE, object = mw.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
-                     covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
-                     file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-            sequpload(mw.file)
             
+            if(drop_exists(path = paste(rdata.dropdir, mw.file, sep = "/"))){
+              
+              seqdownload(mw.file)
+              load(mw.file)
+              seqblock(query = FALSE, object = mw.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
+                       covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
+                       file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
+              sequpload(mw.file)
+              
+            }else{
+              
+              seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", 
+                       covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]), 
+                       file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
+              sequpload(mw.file)
+            }
+
           })
     )})
   
@@ -155,6 +159,7 @@ server <- function(input, output, session) {
     # When users hit "Continue" on the education page, it downloads the mw .RData file, extracts the assigned treatment group for the current user, and saves it for later use to display the correct treatment page
     # I have to download the mw .RData file again because it can't be used outside of observeEvent() above (and I don't know if they can be combined)
     # paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "") extracts the assigned treatment group, adds .txt, and saves that string. This is to identify and display the correct treatment page below
+  
     mw.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
             seqdownload(mw.file)
@@ -165,23 +170,34 @@ server <- function(input, output, session) {
     
     
     # The same as above, just for tb
+    
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
           withProgress(message = "", value = 0, {
      
             incProgress(.25)
 
-            seqdownload(tb.file)
-            load(tb.file)
-            
-            seqblock(query = FALSE, object = tb.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
-                     covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
-                     file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-            sequpload(tb.file)
+            if(drop_exists(path = paste(rdata.dropdir, tb.file, sep = "/"))){
+              
+              seqdownload(tb.file)
+              load(tb.file)
+              seqblock(query = FALSE, object = tb.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
+                       covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
+                       file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
+              sequpload(tb.file)
+              
+            }else{
+              
+              seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", 
+                       covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]), 
+                       file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
+              sequpload(tb.file)
+            }
             
           })
     )})
     
     # The same as above, just for tb
+    
     tb.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
             seqdownload(tb.file)

@@ -79,11 +79,27 @@ loaddata <- function() {
   write.csv(data, file = "alldata/all_data.csv", row.names = F) 
 }
 
-
 setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 loaddata()
 all_data <- read.csv("alldata/all_data.csv")
 View(all_data)
+
+
+## Run drop_download() to download the blocked .RData files, load them, look at the data frame 
+
+setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
+library(rdrop2)
+drop_auth(rdstoken = "droptoken.rds")
+drop_download("seqblock/seqmw.RData", overwrite = TRUE)
+load("seqmw.RData")
+mw <- bdata$x
+drop_download("seqblock/seqtb.RData", overwrite = TRUE)
+load("seqtb.RData")
+tb <- bdata$x
+View(mw)
+View(tb)
+
+
 
 
 #### Comparing to the original version of shinyPsych ####

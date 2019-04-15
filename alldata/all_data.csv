@@ -1,4 +1,2 @@
 "id","age","race","gender","att","empl","inc","pid","ideol","interest","education","mw","mw.group","tb","tb.group"
-"11111",18,1,2,3,2,2,3,1,2,1,2,"mw.m.opp",4,"tb.m.supp"
-"666666",18,1,1,2,3,3,2,2,2,4,3,"mw.p.opp",3,"tb.control"
-"deployed",18,2,2,3,2,4,4,2,2,5,2,"mw.control",3,"tb.control"
+"rrrrr",18,5,2,4,2,4,3,2,2,3,2,"mw.control",3,"tb.control"
