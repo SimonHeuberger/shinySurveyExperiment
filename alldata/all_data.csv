@@ -1,2 +1,7 @@
-"id","age","race","gender","att","empl","inc","pid","ideol","interest","education","mw","mw.group","tb","tb.group"
-"rrrrr",18,5,2,4,2,4,3,2,2,3,2,"mw.control",3,"tb.control"
+"id","age","race","gender","att","empl","inc","pid","ideol","interest","education","mw","mw.group","tb","tb.group","pid_follow"
+"ggggg",18,2,2,4,4,4,1,2,3,1,2,"mw.m.supp",2,"tb.p.opp",NA
+"ttttt",18,2,2,4,5,4,2,2,3,7,2,"mw.m.supp",3,"tb.m.supp",NA
+"ffffff",18,2,1,3,2,4,1,1,3,2,2,"mw.m.opp",3,"tb.m.opp",2
+"ttttt",18,4,2,3,2,4,2,2,3,5,3,"mw.p.opp",2,"tb.p.opp",2
+"yyyyy",18,2,2,3,3,4,3,2,3,5,4,"mw.m.opp",2,"tb.m.opp",2
+"ggggg",18,2,2,3,3,4,4,2,2,5,5,"mw.control",5,"tb.control",3

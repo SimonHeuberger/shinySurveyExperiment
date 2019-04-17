@@ -5,10 +5,12 @@
 setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/questions")
 filed <- "instructions"
 filed <- "demographics"
+filed <- "education"
 filed <- "code"
 filed <- "goodbye"
-filed <- "party"
-filed <- "education"
+filed <- "pid_foll_dem"
+filed <- "pid_foll_rep"
+filed <- "pid_foll_ind_else"
 
 setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/questions/treatment")
 filed <- "mw.control"

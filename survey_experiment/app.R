@@ -3,7 +3,7 @@
 ## Assign first unit (assume a 25 year old member of the Republican Party) to a treatment group. ## Save the results in file "sdata.RData":
 ## seqblock(query = FALSE, id.vars = "ID", id.vals = 001, exact.vars = "party", exact.vals = "Republican", covar.vars = "age", covar.vals = 25, file.name = "sdata.RData")
 ## Assign next unit (age 30, Democratic Party):
-## seqblock(query = FALSE, object = "sdata.RData", id.vals = 002, exact.vals = "Democrat", ## covar.vars = "age", covar.vals = 30, file.name = "sdata.RData")
+## seqblock(query = FALSE, object = "sdata.RData", id.vals = 002, exact.vals = "Democrat", covar.vars = "age", covar.vals = 30, file.name = "sdata.RData")
 
 
 
@@ -19,6 +19,13 @@ library(stringr)
 library(blockTools)
 library(rdrop2)
 library(plyr)
+
+# Javascript code to set up a function that redirects to a web page
+js_code <- "
+shinyjs.browseURL = function(url) {
+  window.open(url,'_self');
+}
+"
 
 # Dropbox directory to save data
 csv.dropdir <- "alldata" 
@@ -56,9 +63,10 @@ ed <- temp[3]
 gb <- temp[4]
 ins <- temp[5]
 
-# Treatment question names (they are needed for idsVec below)
+# Treatment question and party ID follow-up names (they are needed for idsVec below)
 issue1 <- "mw"
 issue2 <- "tb"
+pid.foll.up <- "pid_follow_up"
 
 # All these short versions are used in the code later with paste, assign etc. That way I only have to adjust things once at the beginning
 # The only exception are the samples, because otherwise I would keep resampling and messing things up
@@ -67,7 +75,8 @@ issue2 <- "tb"
 # There is no point in keeping them up here because I needed to copy-paste the "assign"s anyway in order to keep using paste
 
 # Vector with page ids used to later access objects
-idsVec <- c(str_to_title(ins), str_to_title(ed), str_to_title(issue1), str_to_title(issue2), str_to_title(co), str_to_title(gb), str_to_title(dem))
+idsVec <- c(str_to_title(ins), str_to_title(ed), str_to_title(issue1), str_to_title(issue2), str_to_title(co), str_to_title(gb),
+            str_to_title(dem), str_to_title(pid.foll.up))
 
 # Specifications to run seqblock(), so that I don't have to retype them
 n.tr <- 5
@@ -90,7 +99,9 @@ ui <- fixedPage(
   useShinyjs(),
 
   # Include appropriate css and js scripts
-  includeScriptFiles()
+  includeScriptFiles(),
+  
+  extendShinyjs(text = js_code, functions = 'browseURL')
 
 )
 
@@ -138,13 +149,15 @@ server <- function(input, output, session) {
               load(mw.file)
               seqblock(query = FALSE, object = mw.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
+                       exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
               sequpload(mw.file)
               
             }else{
               
               seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", 
-                       covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]), 
+                       covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
+                       exact.vars = "pid", exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
               sequpload(mw.file)
             }
@@ -152,7 +165,7 @@ server <- function(input, output, session) {
           })
     )})
   
-
+  
     # eventReactive() creates a reactive object that changes based on the event. This object can be used in later functions
     # When users hit "Continue" on the education page, it downloads the mw .RData file, extracts the assigned treatment group for the current user, and saves it for later use to display the correct treatment page
     # I have to download the mw .RData file again because it can't be used outside of observeEvent() above (and I don't know if they can be combined)
@@ -180,13 +193,15 @@ server <- function(input, output, session) {
               load(tb.file)
               seqblock(query = FALSE, object = tb.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
+                       exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
               sequpload(tb.file)
               
             }else{
-              
+
               seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]), 
+                       exact.vars = "pid", exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
               sequpload(tb.file)
             }
@@ -205,9 +220,40 @@ server <- function(input, output, session) {
     })
     
     
-
     
-############# Section B: Page Layouts #############
+    
+    
+    
+############# Section B: Skip Logic #############
+    
+    # The same technique as above, where I saved the blocked treatment group name
+    # When users hit "Continue" on the last page of the demographics page, this code sets in and loads a new question .txt file
+    # I created three party ID follow-up .txt question files: One for Dem, one for Rep, one for Ind/Something Else. The last one simply asks whether they feel nearer to the Dems, Reps or Neither
+    # The order in the survey is "Dem, Rep, Ind, Something Else", so 1, 2, 3, 4. The code loads the .txt for Dem if they clicked Dem (= 1), the .txt for Rep if they clicked Rep (= 2), and the .txt for Ind/Something Else if they clicked any of the other two
+
+    pid.foll.sample <- eventReactive(input[[paste(str_to_title(dem), "_next", sep = "")]], {
+          
+            if(as.numeric(input[[paste(str_to_title(dem), "_pid", sep = "")]]) == 1){
+              
+              "pid_foll_dem.txt"
+              
+              }else if(as.numeric(input[[paste(str_to_title(dem), "_pid", sep = "")]]) == 2){
+                
+                "pid_foll_rep.txt"
+                
+                }else{
+                  
+                  "pid_foll_ind_else.txt"
+            }    
+    })
+
+        
+        
+    
+    
+    
+    
+############# Section C: Page Layouts #############
 
   PageLayouts <- reactive({
 
@@ -243,6 +289,17 @@ server <- function(input, output, session) {
                                      globId = str_to_title(dem), defaulttxt = FALSE)),
                    pageNumber = CurrentValues[[paste(str_to_title(dem), ".num", sep = "")]],
                    globId = str_to_title(dem), ctrlVals = CurrentValues)
+      )}
+    
+      if (CurrentValues$page == pid.foll.up) {
+      return(
+        # "assign" reates the object pid.foll.up.list that reads in the appropriate pid follow-up
+        # The rest creates the html logic of the mw page
+        createPage(pageList = assign(paste(pid.foll.up, ".list", sep = ""), 
+                                     createPageList(fileName = paste("questions/", pid.foll.sample(), sep = ""),
+                                     globId = str_to_title(pid.foll.up), defaulttxt = FALSE)), 
+                   pageNumber = CurrentValues[[paste(str_to_title(pid.foll.up), ".num", sep = "")]],
+                   globId = str_to_title(pid.foll.up), ctrlVals = CurrentValues)
       )}
         
       if (CurrentValues$page == ed) {
@@ -310,7 +367,7 @@ server <- function(input, output, session) {
    
   
 
-############# Section C: Page Navigation Buttons #############
+############# Section D: Page Navigation Buttons #############
 
     # All "assign"s are simply copied from above  
     observeEvent(input[[paste(str_to_title(ins), "_next", sep = "")]],{
@@ -323,12 +380,19 @@ server <- function(input, output, session) {
 
     observeEvent(input[[paste(str_to_title(dem), "_next", sep = "")]],{
     nextPage(pageId = dem, ctrlVals = CurrentValues, 
-             nextPageId = ed, pageList = assign(paste(dem, ".list", sep = ""), 
+             nextPageId = pid.foll.up, pageList = assign(paste(dem, ".list", sep = ""), 
                                      createPageList(fileName = paste("questions/", dem, ".txt" , sep = ""),
                                      globId = str_to_title(dem), defaulttxt = FALSE)), 
              globId = str_to_title(dem))
   })
   
+    observeEvent(input[[paste(str_to_title(pid.foll.up), "_next", sep = "")]],{
+    nextPage(pageId = pid.foll.up, ctrlVals = CurrentValues,
+             nextPageId = ed, pageList = assign(paste(pid.foll.up, ".list", sep = ""), 
+                                                            createPageList(fileName = paste("questions/", pid.foll.sample(), sep = ""),
+                                                            globId = str_to_title(pid.foll.up), defaulttxt = FALSE)),
+             globId = str_to_title(pid.foll.up))
+  })
     
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]],{
     nextPage(pageId = ed, ctrlVals = CurrentValues,
@@ -337,8 +401,7 @@ server <- function(input, output, session) {
                                                             globId = str_to_title(ed), defaulttxt = FALSE)),
              globId = str_to_title(ed))
   })
-  
-    
+
   observeEvent(input[[paste(str_to_title(issue1), "_next", sep = "")]],{
     nextPage(pageId = issue1, ctrlVals = CurrentValues,
              nextPageId = issue2, pageList = assign(paste(issue1, ".list", sep = ""), 
@@ -358,7 +421,7 @@ server <- function(input, output, session) {
 
   
   
-############# Section D: Event Control #############
+############# Section E: Event Control #############
 
   # Make sure answers are selected
   # As before, all "assign"s are simply copied from above  
@@ -371,12 +434,18 @@ server <- function(input, output, session) {
                   globId = str_to_title(ins),
                   inputList = input)
 
-    
     onInputEnable(pageId = dem, ctrlVals = CurrentValues,
                   pageList = assign(paste(dem, ".list", sep = ""), 
                                     createPageList(fileName = paste("questions/", dem, ".txt" , sep = ""),
                                     globId = str_to_title(dem), defaulttxt = FALSE)), 
                   globId = str_to_title(dem),
+                  inputList = input)
+    
+    onInputEnable(pageId = pid.foll.up, ctrlVals = CurrentValues,
+                  pageList = assign(paste(pid.foll.up, ".list", sep = ""), 
+                                    createPageList(fileName = paste("questions/", pid.foll.sample(), sep = ""),
+                                    globId = str_to_title(pid.foll.up), defaulttxt = FALSE)), 
+                  globId = str_to_title(pid.foll.up),
                   inputList = input)
     
     onInputEnable(pageId = ed, ctrlVals = CurrentValues,
@@ -415,7 +484,7 @@ server <- function(input, output, session) {
 
   
   
-############# Section E: Save data #############
+############# Section F: Save data #############
 
   observeEvent(input[[paste(str_to_title(co), "_next", sep = "")]], {(
 
@@ -435,6 +504,7 @@ server <- function(input, output, session) {
       data.list[["empl"]] <- input[[paste(str_to_title(dem), "_empl", sep = "")]]
       data.list[["inc"]] <- input[[paste(str_to_title(dem), "_inc", sep = "")]]
       data.list[["pid"]] <- input[[paste(str_to_title(dem), "_pid", sep = "")]]
+      data.list[["pid_follow"]] <- input[[paste(str_to_title(pid.foll.up), "_pid_follow", sep = "")]]
       data.list[["ideol"]] <- input[[paste(str_to_title(dem), "_ideol", sep = "")]]
       data.list[["interest"]] <- input[[paste(str_to_title(dem), "_interest", sep = "")]]
       data.list[[paste(ed)]] <- input[[paste(str_to_title(ed), "_educ", sep = "")]]
@@ -446,13 +516,15 @@ server <- function(input, output, session) {
       
       savedata(data.list)                     # this is where the created function savedata() is executed
 
-      CurrentValues$page <- gb  # last page
+      #CurrentValues$page <- gb  # last page # currently taken out to test Lucid redirects
+      
+      js$browseURL("http://www.google.com") # redirects to Google once user hits "Continue" on the Code page
 
     })
 
     
   )})
-
+  
 }
 
 
