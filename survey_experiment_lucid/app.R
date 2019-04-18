@@ -11,8 +11,6 @@
 
 
 # Working directory, libraries
-rm(list=ls())
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 library(shiny)
 library(shinyjs)
 library(ShinyPsych)
@@ -145,17 +143,18 @@ server <- function(input, output, session) {
   # By default, the Lucid ones are commented out
   
   # RID-code for local testing
-  RID <- reactive({
-    path <- session$clientData$url_pathname
-    gsub(".*rid","", path)
-  })
-  
-  # RID-code for Lucid testing
   #RID <- reactive({
   #  path <- session$clientData$url_pathname
-  #  gsub(".*rid=","", path)
+  #  gsub(".*rid","", path)
   #})
+  
+  # RID-code for Lucid testing
+  RID <- reactive({
+    path <- session$clientData$url_pathname
+    gsub(".*rid=","", path)
+  })
 
+  
   output$MainAction <- renderUI( {
     PageLayouts()
 
@@ -549,10 +548,10 @@ server <- function(input, output, session) {
       savedata(data.list)                     # this is where the created function savedata() is executed
 
       # RID-URL for local testing (redirects to Google)
-      js$browseURL(paste("http://www.google.com/", RID(), sep = ""))
+      #js$browseURL(paste("http://www.google.com/", RID(), sep = ""))
 
       # RID-URL for Lucid (redirects to their completion link)
-      #js$browseURL(paste("https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=[", RID, "]", sep = ""))
+      js$browseURL(paste("https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=[", RID, "]", sep = ""))
     })
     
   )})

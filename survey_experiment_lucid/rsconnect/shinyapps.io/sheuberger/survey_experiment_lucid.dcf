@@ -1,0 +1,10 @@
+name: survey_experiment_lucid
+title:
+username:
+account: sheuberger
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 876356
+bundleId: 2022371
+url: https://sheuberger.shinyapps.io/survey_experiment_lucid/
+when: 1555628292.7809

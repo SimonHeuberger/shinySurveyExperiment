@@ -11,8 +11,6 @@
 
 
 # Working directory, libraries
-rm(list=ls())
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
 library(shiny)
 library(shinyjs)
 library(ShinyPsych)

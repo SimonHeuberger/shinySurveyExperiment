@@ -55,8 +55,10 @@ runApp()
 
 ## (Re-)Deploy app
 library(rsconnect)
-rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/survey_experiment')
+rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/testing')
 Y
+rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/testing?rid=123456-abc')
+rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/survey_experiment?rid=123456-abc')
 
 
 #### Data analysis ####
