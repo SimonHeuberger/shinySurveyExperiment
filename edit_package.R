@@ -7,7 +7,6 @@ filed <- "instructions"
 filed <- "demographics"
 filed <- "education"
 filed <- "code"
-filed <- "goodbye"
 filed <- "pid_foll_dem"
 filed <- "pid_foll_rep"
 filed <- "pid_foll_ind_else"
@@ -55,14 +54,13 @@ runApp()
 
 ## (Re-)Deploy app
 library(rsconnect)
-rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/survey_experiment?rid=123456-abc')
-rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/survey_experiment_lucid')
+rsconnect::deployApp('/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny/survey_experiment')
 Y
 
 
 #### Data analysis ####
 
-## Run the loadData() function to download/list/unlist the data from Dropbox; read in the .csv; look at the data
+## Run the loaddata() function to download/list/unlist the data from Dropbox; read in the .csv; look at the data
 
 library(rdrop2)
 library(plyr)

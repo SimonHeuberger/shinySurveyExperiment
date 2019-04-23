@@ -115,45 +115,22 @@ ui <- fixedPage(
 server <- function(input, output, session) {
 
   
-  ## This is for the Lucid redirects ##
-  # When my survey is in Lucid's system, each user automatically gets a unique alphanumeric number (called RID) added to it
-  # The survey link in Lucid's system then is: https://sheuberger.shinyapps.io/survey_experiment/?rid=123456-abc
-  # "123456-abc" here is an example placeholder RID
-  # My survey needs to read in this RID, store it, then use it to redirect to Lucid's completion website at the end
-  # The completion link in Lucid's system is: https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=[123456-abc]
-  # I found session$clientData$url_pathname, which pulls in the anything after the first slash in the current web path
-  # So for my survey in Lucid's system, it pulls in "survey_experiment/?rid=123456-abc"
-  # Using gsub(), I can extract the RID from this pulled in path, and save the RID as a reactive() output
-  # gsub() extracts everything after a certain character
-  # At the end of the survey, I paste the RID and the rest of the completion link into js$browseURL() (defined above)
-  # The survey then automatically redirects to the Lucid completion link
-  # (I also save the RID in the .csv, to see what's being saved)
-  
-  # The Lucid link is: https://sheuberger.shinyapps.io/survey_experiment/?rid=123456-abc
-  # The Lucid gsub() is "gsub(".*rid=","", path)"
-  # Accordingly, to test things, I set my folder up as "survey_experiment?rid=123456-abc"
-  # Annoyingly, however, shiny takes out the ? and =, so the link based on that folder is: https://sheuberger.shinyapps.io/testingrid123456-abc/
-  # So my local gsub() needs to be "gsub(".*rid","", path)", i.e. without the =, otherwise it's not extracting anything
-  # So I need to have two versions of the RID-saving code:
-    # One that I can use for testing on my machine
-    # One that I can send to the Lucid people to test whether it works in their system
-  # Similarly, I need to have two redirect links (because any added RID doesn't show in the Lucid completion link outside of their system)
-    # One that simply adds the RID to end of Google and redirects to that
-    # One that inserts the RID into the Lucid completion link and redirects to that
-  # By default, the Lucid ones are commented out
-  
-  # RID-code for local testing
+  # Pulling in Lucid RID (i.e. the query string)
+  # Pulls in the query string from the current URL as a list
+  # Set up so that I can deploy/run it and Lucid can test it with the same code
+  # Outside of Lucid's system, there won't be a query string, which means parseQueryString() returns ""
+  # This means the query.string list has length 0. If that's the case, RID will be stored as "no.query.string"
+  # If there is a query.string, which is the case when Lucid tests it, RID is stored as query.string[[1]], which is the query string as a character
   RID <- reactive({
-    path <- session$clientData$url_pathname
-    gsub(".*rid","", path)
+    query.string <- parseQueryString(session$clientData$url_search)
+    if(length(query.string) == 0){
+      "no.query.string"
+    }else{
+      query.string[[1]]
+    }
   })
   
-  # RID-code for Lucid testing
-  #RID <- reactive({
-  #  path <- session$clientData$url_pathname
-  #  gsub(".*rid=","", path)
-  #})
-
+  
   output$MainAction <- renderUI( {
     PageLayouts()
 
@@ -179,7 +156,6 @@ server <- function(input, output, session) {
     # input[[paste(str\_to\_title(ed), "\_educ", sep = "")]] pulls in the user-selected education category. I have to put as.numeric() around it because it's pulled as a factor, and factors don't work with covar.vals
     # id.vals creates the user id. It takes the last current row of the .RData file and adds 1
     # bdata is simply the name of the object when the mw .RData file is loaded. It's something in Ryan's package code. bdata$x is the data frame with the IDs, blocked education categories, and assigned treatment groups
-  
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
           withProgress(message = "", value = 0, {
      
@@ -212,7 +188,6 @@ server <- function(input, output, session) {
     # When users hit "Continue" on the education page, it downloads the mw .RData file, extracts the assigned treatment group for the current user, and saves it for later use to display the correct treatment page
     # I have to download the mw .RData file again because it can't be used outside of observeEvent() above (and I don't know if they can be combined)
     # paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "") extracts the assigned treatment group, adds .txt, and saves that string. This is to identify and display the correct treatment page below
-  
     mw.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
             seqdownload(mw.file)
@@ -223,7 +198,6 @@ server <- function(input, output, session) {
     
     
     # The same as above, just for tb
-    
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
           withProgress(message = "", value = 0, {
      
@@ -252,7 +226,6 @@ server <- function(input, output, session) {
     )})
     
     # The same as above, just for tb
-    
     tb.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
             seqdownload(tb.file)
@@ -272,7 +245,6 @@ server <- function(input, output, session) {
     # When users hit "Continue" on the last page of the demographics page, this code sets in and loads a new question .txt file
     # I created three party ID follow-up .txt question files: One for Dem, one for Rep, one for Ind/Something Else. The last one simply asks whether they feel nearer to the Dems, Reps or Neither
     # The order in the survey is "Dem, Rep, Ind, Something Else", so 1, 2, 3, 4. The code loads the .txt for Dem if they clicked Dem (= 1), the .txt for Rep if they clicked Rep (= 2), and the .txt for Ind/Something Else if they clicked any of the other two
-
     pid.foll.sample <- eventReactive(input[[paste(str_to_title(dem), "_next", sep = "")]], {
           
             if(as.numeric(input[[paste(str_to_title(dem), "_pid", sep = "")]]) == 1){
@@ -546,11 +518,15 @@ server <- function(input, output, session) {
 
       savedata(data.list)                     # this is where the created function savedata() is executed
 
-      # RID-URL for local testing (redirects to Google)
-      js$browseURL(paste("http://www.google.com/", RID(), sep = ""))
-
-      # RID-URL for Lucid (redirects to their completion link)
-      #js$browseURL(paste("https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=[", RID, "]", sep = ""))
+      # Redirect to external website, which is required by Lucid
+      # Set up so that I can deploy/run it and Lucid can test it with the same code
+      # If RID is "no.query.string", i.e. if I'm running it, it redirects to Google, with "no.query.string" added
+      # If RID is anything else, i.e. if Lucid is testing it, it redirects to their completion side, with the RID woven in
+      if(RID() == "no.query.string"){
+        js$browseURL(paste("http://www.google.com/", RID(), sep = ""))
+      }else{
+        js$browseURL(paste("https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=", RID(), sep = ""))
+      }
     })
     
   )})

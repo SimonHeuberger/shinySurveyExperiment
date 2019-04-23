@@ -154,7 +154,6 @@ server <- function(input, output, session) {
     gsub(".*rid=","", path)
   })
 
-  
   output$MainAction <- renderUI( {
     PageLayouts()
 
@@ -551,7 +550,7 @@ server <- function(input, output, session) {
       #js$browseURL(paste("http://www.google.com/", RID(), sep = ""))
 
       # RID-URL for Lucid (redirects to their completion link)
-      js$browseURL(paste("https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=[", RID, "]", sep = ""))
+      js$browseURL(paste("https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=[", RID(), "]", sep = ""))
     })
     
   )})
