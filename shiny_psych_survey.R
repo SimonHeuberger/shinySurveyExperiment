@@ -19,7 +19,6 @@ library(ShinyPsych)
 library(rdrop2)
 library(stringr)
 library(blockTools)
-library(rdrop2)
 library(plyr)
 
 # Javascript code to set up a function that redirects to a web page
