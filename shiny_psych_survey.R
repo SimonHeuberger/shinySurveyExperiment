@@ -156,7 +156,7 @@ server <- function(input, output, session) {
     # input[[paste(str_to_title(ed), "_next", sep = "")]] is code for the "Continue" button
     # input[[paste(str\_to\_title(ed), "\_educ", sep = "")]] pulls in the user-selected education category. I have to put as.numeric() around it because it's pulled as a factor, and factors don't work with covar.vals
     # id.vals creates the user id. It takes the last current row of the .RData file and adds 1
-    # bdata is simply the name of the object when the mw .RData file is loaded. It's something in Ryan's package code. bdata$x is the data frame with the IDs, blocked education categories, and assigned treatment groups
+    # bdata is simply the name of the object when the mw .RData file is loaded. It's something in Ryan's package code. bdata$orig is the data frame with the IDs, blocked education categories, and assigned treatment groups
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
           withProgress(message = "", value = 0, {
      
@@ -166,7 +166,7 @@ server <- function(input, output, session) {
               
               seqdownload(mw.file)
               load(mw.file)
-              seqblock(query = FALSE, object = mw.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
+              seqblock(query = FALSE, object = mw.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
@@ -188,12 +188,12 @@ server <- function(input, output, session) {
     # eventReactive() creates a reactive object that changes based on the event. This object can be used in later functions
     # When users hit "Continue" on the education page, it downloads the mw .RData file, extracts the assigned treatment group for the current user, and saves it for later use to display the correct treatment page
     # I have to download the mw .RData file again because it can't be used outside of observeEvent() above (and I don't know if they can be combined)
-    # paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "") extracts the assigned treatment group, adds .txt, and saves that string. This is to identify and display the correct treatment page below
+    # paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "") extracts the assigned treatment group, adds .txt, and saves that string. This is to identify and display the correct treatment page below
     mw.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
             seqdownload(mw.file)
             load(mw.file)
-            paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "")
+            paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "")
 
     })
     
@@ -208,7 +208,7 @@ server <- function(input, output, session) {
               
               seqdownload(tb.file)
               load(tb.file)
-              seqblock(query = FALSE, object = tb.file, id.vals = bdata$x[nrow(bdata$x), "ID"]+1, 
+              seqblock(query = FALSE, object = tb.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
@@ -231,7 +231,7 @@ server <- function(input, output, session) {
           
             seqdownload(tb.file)
             load(tb.file)
-            paste(bdata$x[nrow(bdata$x), "Tr"], ".txt", sep = "")
+            paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "")
 
     })
     
