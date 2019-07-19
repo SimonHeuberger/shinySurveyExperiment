@@ -1,6 +1,5 @@
 
-#### Run the below on Jeff's machine, with the file "droptoken.rds" copied over as well ###
-# I'm only saving the .RData because that's all I need here
+#### Ran the below on Jeff's machine, with the file "droptoken.rds" copied over as well ###
 
 
 rm(list=ls())
