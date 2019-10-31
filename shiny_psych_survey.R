@@ -12,7 +12,8 @@
 
 # Working directory, libraries
 rm(list=ls())
-setwd("/Users/simonheuberger/Google Drive/Amerika/dissertation/___ordinal_blocking/shiny")
+library(here)
+setwd(here::here("shiny"))
 library(shiny)
 library(shinyjs)
 library(ShinyPsych)
@@ -35,7 +36,7 @@ drop_auth(rdstoken = "droptoken.rds")
 
 # Function that saves each response as a .csv file to AU Dropbox /alldata
 # Defined here; executed in the app
-savedata <- function(data) {                 
+saveData <- function(data) {                 
   data <- t(data)
   # Create a unique file name
   fileName <- sprintf("%s_%s.csv", as.integer(Sys.time()), digest::digest(data))
@@ -47,12 +48,12 @@ savedata <- function(data) {
 }
 
 # Function that uploads a file to Dropbox/seqblock and overwrites any pre-existing file
-sequpload <- function(file) {
+seqUpload <- function(file) {
   drop_upload(file, path = rdata.dropdir, mode = "overwrite")
 }
 
 # Function that downloads a file from Dropbox/seqblock and overwrites any pre-existing file
-seqdownload <- function(file) {
+seqDownload <- function(file) {
   drop_download(paste(rdata.dropdir, file, sep = "/"), overwrite = TRUE)
 }
 
@@ -164,13 +165,13 @@ server <- function(input, output, session) {
             
             if(drop_exists(path = paste(rdata.dropdir, mw.file, sep = "/"))){
               
-              seqdownload(mw.file)
+              seqDownload(mw.file)
               load(mw.file)
               seqblock(query = FALSE, object = mw.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-              sequpload(mw.file)
+              seqUpload(mw.file)
               
             }else{
               
@@ -178,7 +179,7 @@ server <- function(input, output, session) {
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vars = "pid", exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-              sequpload(mw.file)
+              seqUpload(mw.file)
             }
 
           })
@@ -191,7 +192,7 @@ server <- function(input, output, session) {
     # paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "") extracts the assigned treatment group, adds .txt, and saves that string. This is to identify and display the correct treatment page below
     mw.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
-            seqdownload(mw.file)
+            seqDownload(mw.file)
             load(mw.file)
             paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "")
 
@@ -206,13 +207,13 @@ server <- function(input, output, session) {
 
             if(drop_exists(path = paste(rdata.dropdir, tb.file, sep = "/"))){
               
-              seqdownload(tb.file)
+              seqDownload(tb.file)
               load(tb.file)
               seqblock(query = FALSE, object = tb.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-              sequpload(tb.file)
+              seqUpload(tb.file)
               
             }else{
 
@@ -220,7 +221,7 @@ server <- function(input, output, session) {
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]), 
                        exact.vars = "pid", exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
                        file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-              sequpload(tb.file)
+              seqUpload(tb.file)
             }
             
           })
@@ -229,7 +230,7 @@ server <- function(input, output, session) {
     # The same as above, just for tb
     tb.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
-            seqdownload(tb.file)
+            seqDownload(tb.file)
             load(tb.file)
             paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "")
 
@@ -517,7 +518,7 @@ server <- function(input, output, session) {
       data.list[[paste(issue2, ".group", sep = "")]] <- tools::file_path_sans_ext(tb.sample())
       data.list[["RID"]] <- RID()
 
-      savedata(data.list)                     # this is where the created function savedata() is executed
+      saveData(data.list)                     # this is where the created function saveData() is executed
 
       # Redirect to external website, which is required by Lucid
       # Set up so that I can deploy/run it and Lucid can test it with the same code
