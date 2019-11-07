@@ -1,4 +1,0 @@
-id,text,page,type,choices,choiceNames,reverse,placeholder,min,max,disabled,checkType,width,height,inline,randomize
-NA,"Congress is currently debating whether to raise the federal minimum wage. At the moment, the minimum wage is set at $7.25 per hour. This was established in 2009. Under this law, it is illegal for companies to pay their employees less than $7.25 per hour. They can voluntarily choose to pay them more.",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-NA,Some people think the U.S. government should not raise the minimum wage for every working citizen. They argue that employers and employees have the right to agree to whatever wage they both feel is fair.,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-treat,How do you feel about raising the minimum wage?,1,radioButtons,"1,2,3,4,5","Strongly oppose,Somewhat oppose,Neither favor nor oppose,Somewhat favor,Strongly favor",NA,NA,NA,NA,1,is.null,500px,NA,0,0
