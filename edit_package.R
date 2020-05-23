@@ -7,7 +7,7 @@ library(here) # if this shows /shiny, restart the script within code.Rproj
 # I'm using here::here() because plyr masks here() - and plyr is loaded when shiny_psych_survey.R is sourced
 
 # Demographic questions
-setwd(here::here("shiny", "questions"))
+setwd(here::here("questions"))
 filed <- "instructions"
 filed <- "demographics"
 filed <- "education"
@@ -23,7 +23,7 @@ system(paste("open", paste0(filed,".txt")))
 
 
 # Treatment questions
-setwd(here::here("shiny", "questions", "treatment"))
+setwd(here::here("questions", "treatment"))
 filed <- "mw.control"
 filed <- "mw.m.opp"
 filed <- "mw.m.supp"
@@ -52,7 +52,6 @@ write.csv(inst.df, file = paste0(filee,".csv"), row.names = F)                # 
 system(paste("open", paste0(filee,".csv")))                                   # open the .csv in Excel where I can edit and save it
 
 ## Run modified ShinyPsych code to structure setup; create app (.csv files are saved on AU Dropbox)
-setwd(here::here("shiny"))
 source("shiny_psych_survey.R")
 shinyApp(ui = ui, server = server)
 
@@ -60,13 +59,13 @@ shinyApp(ui = ui, server = server)
 
 
 ## Test deployed app code after I make any manual changes
-setwd(here::here("shiny", "survey_experiment"))
+setwd(here::here("survey_experiment"))
 library(shiny)
 runApp()
 
 ## (Re-)Deploy app
 library(rsconnect)
-rsconnect::deployApp(here::here("shiny", "survey_experiment"))
+rsconnect::deployApp(here::here("survey_experiment"))
 Y
 
 #### Data analysis ####
@@ -75,7 +74,7 @@ Y
 
 library(rdrop2)
 library(plyr)
-setwd(here::here("shiny"))
+# make sure wd is the shiny main folder before running this
 drop_auth(rdstoken = "droptoken.rds")
 loadData <- function() {                     
   # Load library and set outputDir
@@ -92,7 +91,7 @@ loadData <- function() {
   write.csv(data, file = "alldata/all_data.csv", row.names = F) 
 }
 
-setwd(here::here("shiny"))
+# make sure wd is the shiny main folder before running this
 loadData()
 all_data <- read.csv("alldata/all_data.csv")
 View(all_data)
@@ -100,7 +99,7 @@ View(all_data)
 
 ## Run drop_download() to download the blocked .RData files, load them, look at the data frame 
 
-setwd(here::here("shiny"))
+# make sure wd is the shiny main folder before running this
 library(rdrop2)
 drop_auth(rdstoken = "droptoken.rds")
 drop_download("seqblock/seqmw.RData", overwrite = TRUE)
@@ -118,7 +117,7 @@ View(tb)
 #### Comparing to the original version of shinyPsych ####
 
 ## Run original ShinyPsych code; create app
-setwd(here::here("shiny"))
+# make sure wd is the shiny main folder before running this
 source("/Library/Frameworks/R.framework/Versions/3.5/Resources/library/ShinyPsych/shiny-examples/Survey/app.R")
 shinyApp(ui = ui, server = server)
 
