@@ -1,0 +1,55 @@
+---
+title: "ShinyPsych - DfD Task"
+author: "Markus Steiner, Nathaniel Phillips"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: "ShinyPsych_References.bib"
+csl: "apa.csl"
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, echo=FALSE, out.width="600px", fig.cap="Screenshot of the DfD task - default example."}
+knitr::include_graphics("../inst/pictures/screenshot_dfd.png")
+```
+
+
+## Default Example
+
+* Run ShinyBandit: `callApp("DfD", "run")`
+* Show App Code: `callApp("DfD", "show")`
+
+## Description
+
+The ShinyPsych - DfD Task, as in the default example, is an implementation of a decisions from description lottery task [e.g. @kahneman1979prospect], created with the ShinyPsych package. Decisions from Description (DfD) are choice problems in the form of lotteries in which a participant is presented different options with oucome-probability pairs and then has to indicate his preference for one option [some studies also allow indifference between lotteries as answers, e.g. @kellen2017individual].
+
+ShinyPsych comes with some default gamble lists that are relatively often used. Sometimes the lists contain only a subset of the gambles used in the study [e.g. @glockner2012cognitive] or are a composition of gambles from several studies (the Birnbaum gambles). Available default lists are gambles from e.g. @birnbaum2008new, @brooks2014risk, @glockner2012cognitive, @hertwig2004decisions, @loomes2002microeconometric and @rieskamp2008probabilistic.
+
+Lottery choice problems displayed as decisions from description have been extensively used in decision making research on risk taking in econimics and psychology [e.g. @kahneman1979prospect; @tversky1992advances; @hertwig2004decisions]
+
+ShinyPsych supports two to four different options with up to six outcomes each (you could have more outcomes but then you'd need to change the css file to change the boxes size). Most studies that used these kinds of choice problems let participants choose between two options.
+
+## Common Extensions
+
+For a full description of the layout of the code underlying ShinyPsych - DfD Task, click here [ShinyPsych - DfD Task Code Description](ShinyPsych_DfDCode.html). Here is a brief description of some ways you can easily extend ShinyPsych - DfD Task:
+
+### Define specific choice problems
+
+If you don't want to use one of the default gamble lists but define your own choice problems, you can simply create you own file containing these gambles and load the file with the `createDfdList()` function. [Click here](ShinyPsych_GambleFiles.html) for a tutorial on how exactly you can create such a file.
+
+### Change number of options
+
+To change the number of options the participant has to choose from, simply adjust the *nOpt* argument in `includeScriptFiles()` and if your not using a default list in `createDfdList()`.
+
+### Change number of outcomes
+
+To change the number of outcome-probability pairs in the lotteries, change the *nOutc* in `createDfdList()` if your not using a default list.
+
+### Adjust game display
+
+To display a currency (e.g. a dollar sign as in the default), set the *outcomeCurrency* argument of `createDfdList()` to the currency label you'd like.
+
+## References
