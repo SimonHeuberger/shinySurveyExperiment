@@ -15,6 +15,7 @@ filed <- "code"
 filed <- "pid_foll_dem"
 filed <- "pid_foll_rep"
 filed <- "pid_foll_ind_else"
+filed <- "morals"
 
 temp <- read.csv(paste0(filed,".csv"))
 system(paste("open", paste0(filed,".csv"))) 
@@ -24,16 +25,16 @@ system(paste("open", paste0(filed,".txt")))
 
 # Treatment questions
 setwd(here::here("questions", "treatment"))
-filed <- "mw.control"
-filed <- "mw.m.opp"
-filed <- "mw.m.supp"
-filed <- "mw.p.opp"
-filed <- "mw.p.supp"
-filed <- "tb.control"
-filed <- "tb.m.opp"
-filed <- "tb.m.supp"
-filed <- "tb.p.opp"
-filed <- "tb.p.supp"
+filed <- "hc.control"
+filed <- "hc.m.opp"
+filed <- "hc.m.supp"
+filed <- "hc.si.opp"
+filed <- "hc.si.supp"
+filed <- "ev.control"
+filed <- "ev.m.opp"
+filed <- "ev.m.supp"
+filed <- "ev.si.opp"
+filed <- "ev.si.supp"
 
 temp <- read.csv(paste0(filed,".csv"))
 system(paste("open", paste0(filed,".csv"))) 
@@ -102,14 +103,14 @@ View(all_data)
 # make sure wd is the shiny main folder before running this
 library(rdrop2)
 drop_auth(rdstoken = "droptoken.rds")
-drop_download("seqblock/seqmw.RData", overwrite = TRUE)
-load("seqmw.RData")
-mw <- bdata$x
-drop_download("seqblock/seqtb.RData", overwrite = TRUE)
-load("seqtb.RData")
-tb <- bdata$x
-View(mw)
-View(tb)
+drop_download("seqblock/seqhc.RData", overwrite = TRUE)
+load("seqhc.RData")
+hc <- bdata$x
+drop_download("seqblock/seqev.RData", overwrite = TRUE)
+load("seqev.RData")
+ev <- bdata$x
+View(hc)
+View(ev)
 
 
 

@@ -1,0 +1,3 @@
+id	text	page	type	choices	choiceNames	reverse	placeholder	min	max	disabled	checkType	width	height	inline	randomize
+NA	Over the past years, politicians have repeatedly debated the potential introduction of increased restrictions on the quality of food in the US. The restrictions raise the standard for pesticides allowed in food. Farmers can only use pesticides that do not seep into the ground water.	1	p	NA	NA	NA	NA	NA	NA	0	NA	500px	NA	NA	0
+treat	How do you feel about these restrictions?	1	radioButtons	1,2,3,4,5	Strongly oppose,Somewhat oppose,Neither favor nor oppose,Somewhat favor,Strongly favor	NA	NA	NA	NA	1	is.null	500px	NA	0	0

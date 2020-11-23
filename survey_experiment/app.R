@@ -61,10 +61,11 @@ co <- temp[1]  # these need to be in alphabetical order, otherwise they are misl
 dem <- temp[2]
 ed <- temp[3]
 ins <- temp[4]
+mor <- temp[5]
 
 # Treatment question and party ID follow-up names (they are needed for idsVec below)
-issue1 <- "mw"
-issue2 <- "tb"
+issue1 <- "hc"
+issue2 <- "ev"
 pid.foll.up <- "pid_follow_up"
 
 # All these short versions are used in the code later with paste, assign etc. That way I only have to adjust things once at the beginning
@@ -75,14 +76,14 @@ pid.foll.up <- "pid_follow_up"
 
 # Vector with page ids used to later access objects
 idsVec <- c(str_to_title(ins), str_to_title(ed), str_to_title(issue1), str_to_title(issue2), str_to_title(co),
-            str_to_title(dem), str_to_title(pid.foll.up))
+            str_to_title(dem), str_to_title(pid.foll.up), str_to_title(mor))
 
 # Specifications to run seqblock(), so that I don't have to retype them
 n.tr <- 5
-mw.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*mw.*.txt"))
-mw.file <- "seqmw.RData"
-tb.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*tb.*.txt"))
-tb.file <- "seqtb.RData"
+hc.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*hc.*.txt"))
+hc.file <- "seqhc.RData"
+ev.treat <- tools::file_path_sans_ext(list.files("questions/treatment", pattern="^.*ev.*.txt"))
+ev.file <- "seqev.RData"
 
 
 
@@ -149,35 +150,35 @@ server <- function(input, output, session) {
   
     # observeEvent() is triggered based on event. Anything in here cannot be used in later functions
     # The 'event' here is when users hit "Continue" on the education page
-    # If the mw .RData file exists in seqblock/ on Dropbox, the current user is not the first respondent. The function then downloads the file, blocks on the existing data and the current user, then uploads the new .RData file
-    # If the mw .RData file does not exist in seqblock/ on Dropbox, the current user is the first respondent. The function then blocks on only the current user, then uploads the resulting .RData file
+    # If the hc .RData file exists in seqblock/ on Dropbox, the current user is not the first respondent. The function then downloads the file, blocks on the existing data and the current user, then uploads the new .RData file
+    # If the hc .RData file does not exist in seqblock/ on Dropbox, the current user is the first respondent. The function then blocks on only the current user, then uploads the resulting .RData file
     # Except for the first respondent to answer the survey, the code always reads in the existing .RData file with pre-assigned respondents
     # input[[paste(str_to_title(ed), "_next", sep = "")]] is code for the "Continue" button
     # input[[paste(str\_to\_title(ed), "\_educ", sep = "")]] pulls in the user-selected education category. I have to put as.numeric() around it because it's pulled as a factor, and factors don't work with covar.vals
     # id.vals creates the user id. It takes the last current row of the .RData file and adds 1
-    # bdata is simply the name of the object when the mw .RData file is loaded. It's something in Ryan's package code. bdata$orig is the data frame with the IDs, blocked education categories, and assigned treatment groups
+    # bdata is simply the name of the object when the hc .RData file is loaded. It's something in Ryan's package code. bdata$orig is the data frame with the IDs, blocked education categories, and assigned treatment groups
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
           withProgress(message = "", value = 0, {
      
             incProgress(.25)
             
-            if(drop_exists(path = paste(rdata.dropdir, mw.file, sep = "/"))){
+            if(drop_exists(path = paste(rdata.dropdir, hc.file, sep = "/"))){
               
-              seqDownload(mw.file)
-              load(mw.file)
-              seqblock(query = FALSE, object = mw.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
+              seqDownload(hc.file)
+              load(hc.file)
+              seqblock(query = FALSE, object = hc.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
-                       file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-              seqUpload(mw.file)
+                       file.name = hc.file, n.tr = n.tr, tr.names = hc.treat)
+              seqUpload(hc.file)
               
             }else{
               
               seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vars = "pid", exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
-                       file.name = mw.file, n.tr = n.tr, tr.names = mw.treat)
-              seqUpload(mw.file)
+                       file.name = hc.file, n.tr = n.tr, tr.names = hc.treat)
+              seqUpload(hc.file)
             }
 
           })
@@ -185,51 +186,51 @@ server <- function(input, output, session) {
   
   
     # eventReactive() creates a reactive object that changes based on the event. This object can be used in later functions
-    # When users hit "Continue" on the education page, it downloads the mw .RData file, extracts the assigned treatment group for the current user, and saves it for later use to display the correct treatment page
-    # I have to download the mw .RData file again because it can't be used outside of observeEvent() above (and I don't know if they can be combined)
+    # When users hit "Continue" on the education page, it downloads the hc .RData file, extracts the assigned treatment group for the current user, and saves it for later use to display the correct treatment page
+    # I have to download the hc .RData file again because it can't be used outside of observeEvent() above (and I don't know if they can be combined)
     # paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "") extracts the assigned treatment group, adds .txt, and saves that string. This is to identify and display the correct treatment page below
-    mw.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
+    hc.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
-            seqDownload(mw.file)
-            load(mw.file)
+            seqDownload(hc.file)
+            load(hc.file)
             paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "")
 
     })
     
     
-    # The same as above, just for tb
+    # The same as above, just for ev
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]], {(
           withProgress(message = "", value = 0, {
      
             incProgress(.25)
 
-            if(drop_exists(path = paste(rdata.dropdir, tb.file, sep = "/"))){
+            if(drop_exists(path = paste(rdata.dropdir, ev.file, sep = "/"))){
               
-              seqDownload(tb.file)
-              load(tb.file)
-              seqblock(query = FALSE, object = tb.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
+              seqDownload(ev.file)
+              load(ev.file)
+              seqblock(query = FALSE, object = ev.file, id.vals = bdata$orig[nrow(bdata$orig), "ID"]+1, 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]),
                        exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
-                       file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-              seqUpload(tb.file)
+                       file.name = ev.file, n.tr = n.tr, tr.names = ev.treat)
+              seqUpload(ev.file)
               
             }else{
 
               seqblock(query = FALSE, id.vars = "ID", id.vals = 1, covar.vars = "education", 
                        covar.vals = as.numeric(input[[paste(str_to_title(ed), "_educ", sep = "")]]), 
                        exact.vars = "pid", exact.vals = input[[paste(str_to_title(dem), "_pid", sep = "")]],
-                       file.name = tb.file, n.tr = n.tr, tr.names = tb.treat)
-              seqUpload(tb.file)
+                       file.name = ev.file, n.tr = n.tr, tr.names = ev.treat)
+              seqUpload(ev.file)
             }
             
           })
     )})
     
-    # The same as above, just for tb
-    tb.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
+    # The same as above, just for ev
+    ev.sample <- eventReactive(input[[paste(str_to_title(ed), "_next", sep = "")]], {
           
-            seqDownload(tb.file)
-            load(tb.file)
+            seqDownload(ev.file)
+            load(ev.file)
             paste(bdata$orig[nrow(bdata$orig), "Tr"], ".txt", sep = "")
 
     })
@@ -274,13 +275,13 @@ server <- function(input, output, session) {
     # The inner "assign" creates the object code.list that reads in "code.txt" and creates a global ID
     # The outer "assign" overwrites the inner code.list in order to include the completion.code
     # It is necessary this way because paste() can otherwise not be used to create object names
-    assign(paste(co, ".list", sep = ""), 
-           changePageVariable(pageList = assign(paste(co, ".list", sep = ""), 
-                                                createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
-                                                globId = str_to_title(co), defaulttxt = FALSE)),
-                              variable = "text",
-                              oldLabel = "completion.code",
-                              newLabel = CurrentValues$completion.code))
+    # assign(paste(co, ".list", sep = ""), 
+    #        changePageVariable(pageList = assign(paste(co, ".list", sep = ""), 
+    #                                             createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
+    #                                             globId = str_to_title(co), defaulttxt = FALSE)),
+    #                           variable = "text",
+    #                           oldLabel = "completion.code",
+    #                           newLabel = CurrentValues$completion.code))
         
 
       if (CurrentValues$page == ins) {
@@ -308,7 +309,7 @@ server <- function(input, output, session) {
       if (CurrentValues$page == pid.foll.up) {
       return(
         # "assign" reates the object pid.foll.up.list that reads in the appropriate pid follow-up
-        # The rest creates the html logic of the mw page
+        # The rest creates the html logic of the hc page
         createPage(pageList = assign(paste(pid.foll.up, ".list", sep = ""), 
                                      createPageList(fileName = paste("questions/", pid.foll.sample(), sep = ""),
                                      globId = str_to_title(pid.foll.up), defaulttxt = FALSE)), 
@@ -316,6 +317,17 @@ server <- function(input, output, session) {
                    globId = str_to_title(pid.foll.up), ctrlVals = CurrentValues)
       )}
         
+      if (CurrentValues$page == mor) {
+      return(
+        # "assign" creates the object demographics.list that reads in "demographics.txt" and creates a global ID
+        # The rest creates the html logic of the demographics page
+        createPage(pageList = assign(paste(mor, ".list", sep = ""), 
+                                     createPageList(fileName = paste("questions/", mor, ".txt" , sep = ""),
+                                     globId = str_to_title(mor), defaulttxt = FALSE)),
+                   pageNumber = CurrentValues[[paste(str_to_title(mor), ".num", sep = "")]],
+                   globId = str_to_title(mor), ctrlVals = CurrentValues)
+      )}
+
       if (CurrentValues$page == ed) {
       return(
         # "assign" creates the object education.list that reads in "education.txt" and creates a global ID
@@ -329,10 +341,10 @@ server <- function(input, output, session) {
     
       if (CurrentValues$page == issue1) {
       return(
-        # "assign" reates the object mw.list that reads in whatever mw question file was sampled
-        # The rest creates the html logic of the mw page
+        # "assign" reates the object hc.list that reads in whatever hc question file was sampled
+        # The rest creates the html logic of the hc page
         createPage(pageList = assign(paste(issue1, ".list", sep = ""), 
-                                     createPageList(fileName = paste("questions/treatment/", mw.sample(), sep = ""),
+                                     createPageList(fileName = paste("questions/treatment/", hc.sample(), sep = ""),
                                      globId = str_to_title(issue1), defaulttxt = FALSE)), 
                    pageNumber = CurrentValues[[paste(str_to_title(issue1), ".num", sep = "")]],
                    globId = str_to_title(issue1), ctrlVals = CurrentValues)
@@ -340,30 +352,42 @@ server <- function(input, output, session) {
 
       if (CurrentValues$page == issue2) {
       return(
-        # "assign" reates the object tb.list that reads in whatever tb question file was sampled
-        # The rest creates the html logic of the tb page
+        # "assign" reates the object ev.list that reads in whatever ev question file was sampled
+        # The rest creates the html logic of the ev page
         createPage(pageList = assign(paste(issue2, ".list", sep = ""), 
-                                     createPageList(fileName = paste("questions/treatment/", tb.sample(), sep = ""),
+                                     createPageList(fileName = paste("questions/treatment/", ev.sample(), sep = ""),
                                      globId = str_to_title(issue2), defaulttxt = FALSE)), 
                    pageNumber = CurrentValues[[paste(str_to_title(issue2), ".num", sep = "")]],
                    globId = str_to_title(issue2), ctrlVals = CurrentValues)
       )}
 
-      if (CurrentValues$page == co){
+    
+      if (CurrentValues$page == co) {
       return(
-        # Both "assign"s are needed here in order to carry forward the code.completion code
-        # Both "assign"s are simply copiy-pasted from above
-        # The rest creates the html logic of the code page
-        createPage(pageList = assign(paste(co, ".list", sep = ""),
-                                     changePageVariable(pageList = assign(paste(co, ".list", sep = ""), 
-                                                            createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
-                                                            globId = str_to_title(co), defaulttxt = FALSE)),
-                                                            variable = "text",
-                                                            oldLabel = "completion.code",
-                                                            newLabel = CurrentValues$completion.code)), 
+        # "assign" creates the object education.list that reads in "education.txt" and creates a global ID
+        # The rest creates the html logic of the education page
+        createPage(pageList = assign(paste(co, ".list", sep = ""), 
+                                     createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
+                                     globId = str_to_title(co), defaulttxt = FALSE)),
                    pageNumber = CurrentValues[[paste(str_to_title(co), ".num", sep = "")]],
                    globId = str_to_title(co), ctrlVals = CurrentValues)
       )}
+
+      # if (CurrentValues$page == co){
+      # return(
+      #   # Both "assign"s are needed here in order to carry forward the code.completion code
+      #   # Both "assign"s are simply copiy-pasted from above
+      #   # The rest creates the html logic of the code page
+      #   createPage(pageList = assign(paste(co, ".list", sep = ""),
+      #                                changePageVariable(pageList = assign(paste(co, ".list", sep = ""), 
+      #                                                       createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
+      #                                                       globId = str_to_title(co), defaulttxt = FALSE)),
+      #                                                       variable = "text",
+      #                                                       oldLabel = "completion.code",
+      #                                                       newLabel = CurrentValues$completion.code)), 
+      #              pageNumber = CurrentValues[[paste(str_to_title(co), ".num", sep = "")]],
+      #              globId = str_to_title(co), ctrlVals = CurrentValues)
+      # )}
     
   })
    
@@ -390,12 +414,23 @@ server <- function(input, output, session) {
   
     observeEvent(input[[paste(str_to_title(pid.foll.up), "_next", sep = "")]],{
     nextPage(pageId = pid.foll.up, ctrlVals = CurrentValues,
-             nextPageId = ed, pageList = assign(paste(pid.foll.up, ".list", sep = ""), 
+             nextPageId = mor, pageList = assign(paste(pid.foll.up, ".list", sep = ""), 
                                                             createPageList(fileName = paste("questions/", pid.foll.sample(), sep = ""),
                                                             globId = str_to_title(pid.foll.up), defaulttxt = FALSE)),
              globId = str_to_title(pid.foll.up))
   })
-    
+
+
+
+    observeEvent(input[[paste(str_to_title(mor), "_next", sep = "")]],{
+    nextPage(pageId = mor, ctrlVals = CurrentValues,
+             nextPageId = ed, pageList = assign(paste(mor, ".list", sep = ""), 
+                                                            createPageList(fileName = paste("questions/", mor, ".txt" , sep = ""),
+                                                            globId = str_to_title(mor), defaulttxt = FALSE)),
+             globId = str_to_title(mor))
+  })
+
+                
     observeEvent(input[[paste(str_to_title(ed), "_next", sep = "")]],{
     nextPage(pageId = ed, ctrlVals = CurrentValues,
              nextPageId = issue1, pageList = assign(paste(ed, ".list", sep = ""), 
@@ -407,7 +442,7 @@ server <- function(input, output, session) {
   observeEvent(input[[paste(str_to_title(issue1), "_next", sep = "")]],{
     nextPage(pageId = issue1, ctrlVals = CurrentValues,
              nextPageId = issue2, pageList = assign(paste(issue1, ".list", sep = ""), 
-                                                            createPageList(fileName = paste("questions/treatment/", mw.sample(), sep = ""),
+                                                            createPageList(fileName = paste("questions/treatment/", hc.sample(), sep = ""),
                                                             globId = str_to_title(issue1), defaulttxt = FALSE)),
              globId = str_to_title(issue1))
   })
@@ -415,7 +450,7 @@ server <- function(input, output, session) {
   observeEvent(input[[paste(str_to_title(issue2), "_next", sep = "")]],{
     nextPage(pageId = issue2, ctrlVals = CurrentValues,
              nextPageId = co, pageList = assign(paste(issue2, ".list", sep = ""), 
-                                                    createPageList(fileName = paste("questions/treatment/", tb.sample(), sep = ""),
+                                                    createPageList(fileName = paste("questions/treatment/", ev.sample(), sep = ""),
                                                     globId = str_to_title(issue2), defaulttxt = FALSE)),
              globId = str_to_title(issue2))
   })
@@ -449,6 +484,13 @@ server <- function(input, output, session) {
                                     globId = str_to_title(pid.foll.up), defaulttxt = FALSE)), 
                   globId = str_to_title(pid.foll.up),
                   inputList = input)
+
+    onInputEnable(pageId = mor, ctrlVals = CurrentValues,
+                  pageList = assign(paste(mor, ".list", sep = ""), 
+                                    createPageList(fileName = paste("questions/", mor, ".txt" , sep = ""),
+                                    globId = str_to_title(mor), defaulttxt = FALSE)), 
+                  globId = str_to_title(mor),
+                  inputList = input)
     
     onInputEnable(pageId = ed, ctrlVals = CurrentValues,
                   pageList = assign(paste(ed, ".list", sep = ""), 
@@ -459,28 +501,35 @@ server <- function(input, output, session) {
 
     onInputEnable(pageId = issue1, ctrlVals = CurrentValues,
                   pageList = assign(paste(issue1, ".list", sep = ""), 
-                                    createPageList(fileName = paste("questions/treatment/", mw.sample(), sep = ""),
+                                    createPageList(fileName = paste("questions/treatment/", hc.sample(), sep = ""),
                                     globId = str_to_title(issue1), defaulttxt = FALSE)), 
                   globId = str_to_title(issue1),
                   inputList = input)
     
     onInputEnable(pageId = issue2, ctrlVals = CurrentValues,
                   pageList = assign(paste(issue2, ".list", sep = ""), 
-                                    createPageList(fileName = paste("questions/treatment/", tb.sample(), sep = ""),
+                                    createPageList(fileName = paste("questions/treatment/", ev.sample(), sep = ""),
                                     globId = str_to_title(issue2), defaulttxt = FALSE)), 
                   globId = str_to_title(issue2),
                   inputList = input)
     
     onInputEnable(pageId = co, ctrlVals = CurrentValues,
                   pageList = assign(paste(co, ".list", sep = ""), 
-                                    changePageVariable(pageList = assign(paste(co, ".list", sep = ""), 
-                                                                  createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
-                                                                  globId = str_to_title(co), defaulttxt = FALSE)),
-                                                                  variable = "text",
-                                                                  oldLabel = "completion.code",
-                                                                  newLabel = CurrentValues$completion.code)), 
+                                    createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
+                                    globId = str_to_title(co), defaulttxt = FALSE)), 
                   globId = str_to_title(co),
                   inputList = input)
+
+        # onInputEnable(pageId = co, ctrlVals = CurrentValues,
+        #           pageList = assign(paste(co, ".list", sep = ""), 
+        #                             changePageVariable(pageList = assign(paste(co, ".list", sep = ""), 
+        #                                                           createPageList(fileName = paste("questions/", co, ".txt" , sep = ""),
+        #                                                           globId = str_to_title(co), defaulttxt = FALSE)),
+        #                                                           variable = "text",
+        #                                                           oldLabel = "completion.code",
+        #                                                           newLabel = CurrentValues$completion.code)), 
+        #           globId = str_to_title(co),
+        #           inputList = input)
 
   })
 
@@ -498,7 +547,7 @@ server <- function(input, output, session) {
       # Create a list to save data
       # Pre-created empty and then filled in because this was the only way to use paste
       data.list <- list()
-      data.list[["id"]] <- input[[paste(str_to_title(co), "_workerid", sep = "")]]
+      # data.list[["id"]] <- input[[paste(str_to_title(co), "_workerid", sep = "")]]
       data.list[["age"]] <- input[[paste(str_to_title(dem), "_age", sep = "")]]
       data.list[["race"]] <- input[[paste(str_to_title(dem), "_race", sep = "")]]
       data.list[["gender"]] <- input[[paste(str_to_title(dem), "_gender", sep = "")]]
@@ -508,12 +557,18 @@ server <- function(input, output, session) {
       data.list[["pid"]] <- input[[paste(str_to_title(dem), "_pid", sep = "")]]
       data.list[["pid_follow"]] <- input[[paste(str_to_title(pid.foll.up), "_pid_follow", sep = "")]]
       data.list[["ideol"]] <- input[[paste(str_to_title(dem), "_ideol", sep = "")]]
-      data.list[["interest"]] <- input[[paste(str_to_title(dem), "_interest", sep = "")]]
+      data.list[["mor_suffer"]] <- input[[paste(str_to_title(mor), "_mor_suffer", sep = "")]]
+      data.list[["mor_care"]] <- input[[paste(str_to_title(mor), "_mor_care", sep = "")]]
+      data.list[["mor_cruel"]] <- input[[paste(str_to_title(mor), "_mor_cruel", sep = "")]]
+      data.list[["mor_comp"]] <- input[[paste(str_to_title(mor), "_mor_comp", sep = "")]]
+      data.list[["mor_anim"]] <- input[[paste(str_to_title(mor), "_mor_anim", sep = "")]]
+      data.list[["mor_kill"]] <- input[[paste(str_to_title(mor), "_mor_kill", sep = "")]]
+      # data.list[["interest"]] <- input[[paste(str_to_title(dem), "_interest", sep = "")]]
       data.list[[paste(ed)]] <- input[[paste(str_to_title(ed), "_educ", sep = "")]]
       data.list[[paste(issue1)]] <- input[[paste(str_to_title(issue1), "_treat", sep = "")]]
-      data.list[[paste(issue1, ".group", sep = "")]] <- tools::file_path_sans_ext(mw.sample())
+      data.list[[paste(issue1, ".group", sep = "")]] <- tools::file_path_sans_ext(hc.sample())
       data.list[[paste(issue2)]] <- input[[paste(str_to_title(issue2), "_treat", sep = "")]]
-      data.list[[paste(issue2, ".group", sep = "")]] <- tools::file_path_sans_ext(tb.sample())
+      data.list[[paste(issue2, ".group", sep = "")]] <- tools::file_path_sans_ext(ev.sample())
       data.list[["RID"]] <- RID()
 
       saveData(data.list)                     # this is where the created function saveData() is executed
@@ -523,9 +578,9 @@ server <- function(input, output, session) {
       # If RID is "no.query.string", i.e. if I'm running it, it redirects to Google, with "no.query.string" added
       # If RID is anything else, i.e. if Lucid is testing it, it redirects to their completion side, with the RID woven in
       if(RID() == "no.query.string"){
-        js$browseURL(paste("http://www.google.com/", RID(), sep = ""))
+        js$browseURL(paste("http://www.google.com/"))
       }else{
-        js$browseURL(paste("https://notch.insights.supply/cb?token=98b98d10-789d-42ec-ba71-a077cbbd909c&RID=", RID(), sep = ""))
+        js$browseURL(paste("https://notch.insights.supply/cb?token=187df571-53eb-46e4-b03b-0425864e5361&RID=", RID(), sep = ""))
       }
     })
     

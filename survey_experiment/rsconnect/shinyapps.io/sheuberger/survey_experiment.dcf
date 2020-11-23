@@ -5,6 +5,6 @@ account: sheuberger
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 878175
-bundleId: 2552812
+bundleId: 3877323
 url: https://sheuberger.shinyapps.io/survey_experiment/
-when: 1572478153.7542
+when: 1605729520.89367

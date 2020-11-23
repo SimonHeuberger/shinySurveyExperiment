@@ -13,7 +13,7 @@
 # Working directory, libraries
 rm(list=ls())
 library(here)
-setwd(here::here("shiny"))
+#setwd(here::here("shiny"))
 library(shiny)
 library(shinyjs)
 library(ShinyPsych)
