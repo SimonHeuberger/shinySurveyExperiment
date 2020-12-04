@@ -1,0 +1,12 @@
+id,text,page,type,choices,choiceNames,reverse,placeholder,min,max,disabled,checkType,width,height,inline,randomize
+NA,Please read the following sentences and indicate your agreement or disagreement.,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+si.white,I have no problem telling ''white lies'' if it will help me achieve my goals.,1,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0
+si.care,"At the end of the day I care mostly for myself, my family, and friends who can help me.",1,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0
+si.kids,"Even if it meant giving my kids an unfair advantage over others, I would do it for them.",1,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0
+NA,Please read the following sentences and indicate your agreement or disagreement.,2,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+si.hon,I am not always honest because honesty can end up harming myself and others.,2,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0
+si.boat,"If there was only one space left on a lifeboat that a child needed, I would honestly have to take it for myself and my family.",2,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0
+si.kill,"If the choice was between killing someone or being killed, I would kill.",2,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0
+NA,Please read the following sentences and indicate your agreement or disagreement.,3,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+si.good,"I sometimes lie to others for my own good, and theirs too.",3,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0
+si.help,I mostly help those around me who will help me later.,3,radioButtons,"1,2,3,4,5,6","Strongly disagree,Moderately disagree,Slightly disagree,Slightly agree,Moderately agree,Strongly agree",NA,NA,NA,NA,1,is.null,500px,NA,0,0

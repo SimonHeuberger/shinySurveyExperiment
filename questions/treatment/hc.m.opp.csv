@@ -1,3 +1,7 @@
 id,text,page,type,choices,choiceNames,reverse,placeholder,min,max,disabled,checkType,width,height,inline,randomize
-NA,"Over the past years, politicians have repeatedly debated the potential introduction of a new healthcare plan.The plan is paid through a mix of individual and employer fees and would improve healthcare in the US. Everyone in the US is covered under this plan. Costs are split into brackets. Those who make more pay more. Elderly people and people with income below the poverty line receive free healthcare.",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,"Over the past few years, U.S. politicians have repeatedly debated the potential introduction of a new healthcare plan. One option is a healthcare plan that:",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,* covers everyone in the US,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,* is paid for with a mix of fees paid by individuals and employers as well as tax dollars,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,* provides free healthcare to those over 65 and low income people.,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,"Some people think it is a bad idea to implement this healthcare plan. They argue that elderly people and those with medical conditions will not get the level of care they need. Waiting times for appointments will increase when everyone is covered, which particularly affects these vulnerable groups.",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
 treat,How do you feel about this healthcare plan?,1,radioButtons,"1,2,3,4,5","Strongly oppose,Somewhat oppose,Neither favor nor oppose,Somewhat favor,Strongly favor",NA,NA,NA,NA,1,is.null,500px,NA,0,0

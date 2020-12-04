@@ -1,3 +1,6 @@
 id,text,page,type,choices,choiceNames,reverse,placeholder,min,max,disabled,checkType,width,height,inline,randomize
-NA,"Over the past years, politicians have repeatedly debated the potential introduction of increased restrictions on the quality of food in the US. The restrictions raise the standard for pesticides allowed in food. Farmers can only use pesticides that do not seep into the ground water.",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,"Over the past few years, politicians have repeatedly debated the potential introduction of new regulations to improve food safety in the US. The restrictions decrease the use of slightly toxic pesticides that:",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,"* might contaminate crops, soil, and ground water",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,* are particularly harmful to the elderly and those with various medical conditions.,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
+NA,"The implementation of the restrictions is paid for with a mix of fees by farmers and state subsidies. Some people think it is a bad idea to implement these restrictions. They argue that they increase the burden on farmers and make it harder for them to stay economically viable. To cover these costs, they need to lay off workers, take on debts or even close their business.",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
 treat,How do you feel about these restrictions?,1,radioButtons,"1,2,3,4,5","Strongly oppose,Somewhat oppose,Neither favor nor oppose,Somewhat favor,Strongly favor",NA,NA,NA,NA,1,is.null,500px,NA,0,0

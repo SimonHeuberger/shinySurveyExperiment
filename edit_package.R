@@ -2,7 +2,7 @@
 
 ## Edit my questions
 
-library(here) # if this shows /shiny, restart the script within code.Rproj
+library(here) 
 # here() does not work in the usual sense here, since it doesn't play nicely with system(). Better to keep setwd() alongside it
 # I'm using here::here() because plyr masks here() - and plyr is loaded when shiny_psych_survey.R is sourced
 
@@ -10,12 +10,21 @@ library(here) # if this shows /shiny, restart the script within code.Rproj
 setwd(here::here("questions"))
 filed <- "instructions"
 filed <- "demographics"
-filed <- "education"
+filed <- "education.op"
+filed <- "education.an"
 filed <- "code"
-filed <- "pid_foll_dem"
-filed <- "pid_foll_rep"
-filed <- "pid_foll_ind_else"
+filed <- "pid"
+filed <- "ideol"
+filed <- "pid.foll.dem"
+filed <- "pid.foll.rep"
+filed <- "pid.foll.ind.else"
+filed <- "ideol.foll.cons"
+filed <- "ideol.foll.lib"
+filed <- "ideol.foll.nei"
 filed <- "morals"
+filed <- "self-interest"
+filed <- "hc.check"
+filed <- "ev.check"
 
 temp <- read.csv(paste0(filed,".csv"))
 system(paste("open", paste0(filed,".csv"))) 
@@ -72,14 +81,14 @@ Y
 #### Data analysis ####
 
 ## Run the loadData() function to download/list/unlist the data from Dropbox; read in the .csv; look at the data
-
+# make sure wd is the shiny main folder before running this
+setwd(here::here())
 library(rdrop2)
 library(plyr)
-# make sure wd is the shiny main folder before running this
+outputDir = "alldata.op"
+outputDir = "alldata.an"
 drop_auth(rdstoken = "droptoken.rds")
-loadData <- function() {                     
-  # Load library and set outputDir
-  outputDir <- "alldata"              # loads all responses from AU Dropbox /alldata
+loadData <- function(outputDir) {         # either alldata.op or alldata.an            
   # Read in all .csv files
   rdrop2:::drop_is_folder(outputDir)
   filesInfo <- drop_dir(outputDir)
@@ -89,29 +98,29 @@ loadData <- function() {
   # Concatenate all data together into one data frame
   data <- ldply(data, data.frame)
   # Write data frame to .csv in local folder /alldata
-  write.csv(data, file = "alldata/all_data.csv", row.names = F) 
+  write.csv(data, file = paste0(outputDir, "/", outputDir, ".csv"), row.names = F) 
 }
+loadData(outputDir = outputDir)
+alldata <- read.csv(paste0(outputDir, "/", outputDir, ".csv"))
+View(alldata)
 
-# make sure wd is the shiny main folder before running this
-loadData()
-all_data <- read.csv("alldata/all_data.csv")
-View(all_data)
 
 
 ## Run drop_download() to download the blocked .RData files, load them, look at the data frame 
 
 # make sure wd is the shiny main folder before running this
+setwd(here::here())
 library(rdrop2)
 drop_auth(rdstoken = "droptoken.rds")
-drop_download("seqblock/seqhc.RData", overwrite = TRUE)
-load("seqhc.RData")
-hc <- bdata$x
-drop_download("seqblock/seqev.RData", overwrite = TRUE)
-load("seqev.RData")
-ev <- bdata$x
-View(hc)
-View(ev)
-
+seqpath <- "seqblock.op"
+seqfile <- "seqhc.op.RData"
+seqfile <- "seqev.op.RData"
+seqpath <- "seqblock.an"
+seqfile <- "seqhc.an.RData"
+seqfile <- "seqev.an.RData"
+drop_download(paste0(seqpath, "/", seqfile), overwrite = TRUE)
+load(seqfile)
+View(bdata$x)
 
 
 

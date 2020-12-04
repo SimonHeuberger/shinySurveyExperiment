@@ -1,0 +1,2 @@
+id,text,page,type,choices,choiceNames,reverse,placeholder,min,max,disabled,checkType,width,height,inline,randomize
+pid,"Generally speaking, do you think of yourself as a Republican, a Democrat, an independent, or something else?",1,radioButtons,"1,2,3,4","Democrat,Republican,Independent,Something else",NA,NA,NA,NA,1,is.null,500px,NA,0,0
