@@ -28,7 +28,7 @@ shinyjs.browseURL = function(url) {
 "
 # The survey slightly differs for the pre-test on MTurk and the experiment on Lucid.
 # I make that selecton here
-platform <- "Mturk"  # either Mturk or Lucid
+platform <- "Lucid"  # either Mturk or Lucid
 
 # Dropbox directory to save data
 csv.dropdir.op <- "alldata.op" 
@@ -69,7 +69,8 @@ issues.intro <- "issues.intro"
 mor.si.intro <- "mor.si.intro"
 measure1 <- "measure1"
 measure2 <- "measure2"
-dem <- "demographics"
+dem1 <- "demographics1"
+dem2 <- "demographics2"
 pid <- "pid"
 pid.foll.up <- "pid.follow.up"
 ideol <- "ideol"
@@ -101,7 +102,8 @@ com <- "comments"
 
 # Vector with page ids used to later access objects
 idsVec <- c(str_to_title(ins), str_to_title(ed.both), str_to_title(issue1), str_to_title(issue2), 
-            str_to_title(co), str_to_title(dem), str_to_title(ideol), str_to_title(pid),
+            str_to_title(co), str_to_title(dem1), str_to_title(dem2), 
+            str_to_title(ideol), str_to_title(pid),
             str_to_title(pid.foll.up), str_to_title(ideol.foll.up),
             # str_to_title(mor), 
             # str_to_title(si),
@@ -394,6 +396,34 @@ server <- function(input, output, session) {
 
     
     
+  observeEvent(input[[paste(str_to_title(co), "_next", sep = "")]],{
+    
+    if(platform == "Lucid"){
+      if(RID() == "no.query.string"){
+        js$browseURL(paste("http://www.google.com/"))
+      }else{
+        js$browseURL(paste("https://notch.insights.supply/cb?token=187df571-53eb-46e4-b03b-0425864e5361&RID=", RID(), sep = ""))
+      }
+    }
+  })
+    
+  
+  
+  observeEvent(input[[paste(str_to_title(dem2), "_next", sep = "")]],{
+    
+    if(platform == "Lucid"){
+      if(input[[paste(str_to_title(dem2), "_att", sep = "")]] != 2){
+        if(RID() == "no.query.string"){
+          js$browseURL(paste("http://www.google.com/"))
+        }else{
+          js$browseURL(paste("https://samplicio.us/s/ClientCallBack.aspx?RIS=20&RID=", RID(), sep = ""))
+        }
+      }
+    }
+  })
+  
+    
+    
 
 ############# Section C: Page Layouts #############
 
@@ -479,15 +509,26 @@ server <- function(input, output, session) {
                    globId = str_to_title(dem.intro), ctrlVals = CurrentValues)
       )}
     
-      if (CurrentValues$page == dem) {
+      if (CurrentValues$page == dem1) {
       return(
         # "assign" creates the object demographics.list that reads in "demographics.txt" and creates a global ID
         # The rest creates the html logic of the demographics page
-        createPage(pageList = assign(paste(dem, ".list", sep = ""), 
-                                     createPageList(fileName = paste("questions/", dem, ".txt" , sep = ""),
-                                     globId = str_to_title(dem), defaulttxt = FALSE)),
-                   pageNumber = CurrentValues[[paste(str_to_title(dem), ".num", sep = "")]],
-                   globId = str_to_title(dem), ctrlVals = CurrentValues)
+        createPage(pageList = assign(paste(dem1, ".list", sep = ""), 
+                                     createPageList(fileName = paste("questions/", dem1, ".txt" , sep = ""),
+                                     globId = str_to_title(dem1), defaulttxt = FALSE)),
+                   pageNumber = CurrentValues[[paste(str_to_title(dem1), ".num", sep = "")]],
+                   globId = str_to_title(dem1), ctrlVals = CurrentValues)
+      )}
+    
+      if (CurrentValues$page == dem2) {
+      return(
+        # "assign" creates the object demographics.list that reads in "demographics.txt" and creates a global ID
+        # The rest creates the html logic of the demographics page
+        createPage(pageList = assign(paste(dem2, ".list", sep = ""), 
+                                     createPageList(fileName = paste("questions/", dem2, ".txt" , sep = ""),
+                                     globId = str_to_title(dem2), defaulttxt = FALSE)),
+                   pageNumber = CurrentValues[[paste(str_to_title(dem2), ".num", sep = "")]],
+                   globId = str_to_title(dem2), ctrlVals = CurrentValues)
       )}
     
       if (CurrentValues$page == pid) {
@@ -686,19 +727,28 @@ server <- function(input, output, session) {
 
     observeEvent(input[[paste(str_to_title(dem.intro), "_next", sep = "")]],{
     nextPage(pageId = dem.intro, ctrlVals = CurrentValues, 
-             nextPageId = dem, pageList = assign(paste(dem.intro, ".list", sep = ""), 
+             nextPageId = dem1, pageList = assign(paste(dem.intro, ".list", sep = ""), 
                                      createPageList(fileName = paste("questions/", dem.intro, ".txt" , sep = ""),
                                      globId = str_to_title(dem.intro), defaulttxt = FALSE)), 
              globId = str_to_title(dem.intro))
   })
 
       
-    observeEvent(input[[paste(str_to_title(dem), "_next", sep = "")]],{
-    nextPage(pageId = dem, ctrlVals = CurrentValues, 
-             nextPageId = pid, pageList = assign(paste(dem, ".list", sep = ""), 
-                                     createPageList(fileName = paste("questions/", dem, ".txt" , sep = ""),
-                                     globId = str_to_title(dem), defaulttxt = FALSE)), 
-             globId = str_to_title(dem))
+    observeEvent(input[[paste(str_to_title(dem1), "_next", sep = "")]],{
+    nextPage(pageId = dem1, ctrlVals = CurrentValues, 
+             nextPageId = dem2, pageList = assign(paste(dem1, ".list", sep = ""), 
+                                     createPageList(fileName = paste("questions/", dem1, ".txt" , sep = ""),
+                                     globId = str_to_title(dem1), defaulttxt = FALSE)), 
+             globId = str_to_title(dem1))
+  })
+
+      
+    observeEvent(input[[paste(str_to_title(dem2), "_next", sep = "")]],{
+    nextPage(pageId = dem2, ctrlVals = CurrentValues, 
+             nextPageId = pid, pageList = assign(paste(dem2, ".list", sep = ""), 
+                                     createPageList(fileName = paste("questions/", dem2, ".txt" , sep = ""),
+                                     globId = str_to_title(dem2), defaulttxt = FALSE)), 
+             globId = str_to_title(dem2))
   })
 
       
@@ -847,13 +897,19 @@ server <- function(input, output, session) {
                   globId = str_to_title(dem.intro),
                   inputList = input)
     
-    onInputEnable(pageId = dem, ctrlVals = CurrentValues,
-                  pageList = assign(paste(dem, ".list", sep = ""), 
-                                    createPageList(fileName = paste("questions/", dem, ".txt" , sep = ""),
-                                    globId = str_to_title(dem), defaulttxt = FALSE)), 
-                  globId = str_to_title(dem),
+    onInputEnable(pageId = dem1, ctrlVals = CurrentValues,
+                  pageList = assign(paste(dem1, ".list", sep = ""), 
+                                    createPageList(fileName = paste("questions/", dem1, ".txt" , sep = ""),
+                                    globId = str_to_title(dem1), defaulttxt = FALSE)), 
+                  globId = str_to_title(dem1),
                   inputList = input)
     
+    onInputEnable(pageId = dem2, ctrlVals = CurrentValues,
+                  pageList = assign(paste(dem2, ".list", sep = ""), 
+                                    createPageList(fileName = paste("questions/", dem2, ".txt" , sep = ""),
+                                    globId = str_to_title(dem2), defaulttxt = FALSE)), 
+                  globId = str_to_title(dem2),
+                  inputList = input)
     onInputEnable(pageId = pid, ctrlVals = CurrentValues,
                   pageList = assign(paste(pid, ".list", sep = ""), 
                                     createPageList(fileName = paste("questions/", pid, ".txt" , sep = ""),
@@ -969,17 +1025,17 @@ server <- function(input, output, session) {
       # Create a list to save data
       # Pre-created empty and then filled in because this was the only way to use paste
       data.list <- list()
-      data.list[["birthyear"]] <- input[[paste(str_to_title(dem), "_birthyear", sep = "")]]
-      data.list[["race"]] <- input[[paste(str_to_title(dem), "_race", sep = "")]]
-      data.list[["gender"]] <- input[[paste(str_to_title(dem), "_gender", sep = "")]]
-      data.list[["att"]] <- input[[paste(str_to_title(dem), "_att", sep = "")]]
-      data.list[["empl"]] <- input[[paste(str_to_title(dem), "_empl", sep = "")]]
-      data.list[["inc"]] <- input[[paste(str_to_title(dem), "_inc", sep = "")]]
+      data.list[["birthyear"]] <- input[[paste(str_to_title(dem1), "_birthyear", sep = "")]]
+      data.list[["race"]] <- input[[paste(str_to_title(dem1), "_race", sep = "")]]
+      data.list[["gender"]] <- input[[paste(str_to_title(dem1), "_gender", sep = "")]]
+      data.list[["att"]] <- input[[paste(str_to_title(dem2), "_att", sep = "")]]
+      data.list[["empl"]] <- input[[paste(str_to_title(dem2), "_empl", sep = "")]]
+      data.list[["inc"]] <- input[[paste(str_to_title(dem2), "_inc", sep = "")]]
       data.list[["pid"]] <- input[[paste(str_to_title(pid), "_pid", sep = "")]]
       data.list[["pid.follow"]] <- input[[paste(str_to_title(pid.foll.up), "_pid.follow", sep = "")]]
       data.list[["ideol"]] <- input[[paste(str_to_title(ideol), "_ideol", sep = "")]]
       data.list[["ideol.follow"]] <- input[[paste(str_to_title(ideol.foll.up), "_ideol.follow", sep = "")]]
-      data.list[[paste(ed.both)]] <- input[[paste(str_to_title(ed.both), "_educ", sep = "")]]
+      data.list[["educ"]] <- input[[paste(str_to_title(ed.both), "_educ", sep = "")]]
       
       if(mor.si.first$a == "morals.txt"){
         data.list[["mor.suffer"]] <- input[[paste(str_to_title(measure1), "_mor.suffer", sep = "")]]
@@ -1022,8 +1078,8 @@ server <- function(input, output, session) {
       data.list[[paste0(issue2, ".slider")]] <- input[[paste(str_to_title(issue2), "_treat.slide", sep = "")]]
       data.list[[paste(issue2.check)]] <- input[[paste(str_to_title(issue2.check), "_check", sep = "")]]
             
-      data.list[[".online.length"]] <- input[[paste(str_to_title(throw), "_online.length", sep = "")]]
-      data.list[[".study.choice"]] <- input[[paste(str_to_title(throw), "_study.choice", sep = "")]]
+      data.list[["online.length"]] <- input[[paste(str_to_title(throw), "_online.length", sep = "")]]
+      data.list[["study.choice"]] <- input[[paste(str_to_title(throw), "_study.choice", sep = "")]]
       
       if(platform == "Mturk"){
         data.list[["unique.id"]] <- unique.id()
@@ -1065,6 +1121,7 @@ server <- function(input, output, session) {
     }
   })
   
+
 
   
 }
