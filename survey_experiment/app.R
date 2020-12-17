@@ -26,6 +26,7 @@ shinyjs.browseURL = function(url) {
   window.open(url,'_self');
 }
 "
+
 # The survey slightly differs for the pre-test on MTurk and the experiment on Lucid.
 # I make that selecton here
 platform <- "Lucid"  # either Mturk or Lucid
@@ -1121,7 +1122,6 @@ server <- function(input, output, session) {
     }
   })
   
-
 
   
 }
