@@ -1,11 +1,10 @@
-#### Editing, running, testing, an deploying the shiny app ####
 
-## Edit my questions and copy them over to the app
-
-library(here) 
+#### Edit questions and copy them over to the app ####
+# Demographics and others
+library(here)
+current.q <- here::here("questions")
+app.q <- here::here("survey_experiment/questions")
 setwd(here::here("questions"))
-current.q <- "/Users/simonheuberger/dissertation/shiny/questions"
-app.q <- "/Users/simonheuberger/dissertation/shiny/survey_experiment/questions"
 list.of.files.q <- tools::file_path_sans_ext(list.files(current.q, pattern = ".txt"))
 for(i in 1:length(list.of.files.q)){
   temp <- read.csv(paste0(list.of.files.q[i],".csv"))
@@ -13,14 +12,11 @@ for(i in 1:length(list.of.files.q)){
 }
 file.copy(paste0(list.of.files.q, ".txt"), app.q, overwrite = TRUE)
 
-## Test deployed app code after I make any manual changes
-setwd(here::here("survey_experiment"))
-library(shiny)
-runApp()
-
+# Treatment
+library(here)
+current.treat <- here::here("questions/treatment")
+app.treat <- here::here("survey_experiment/questions/treatment")
 setwd(here::here("questions", "treatment"))
-current.treat <- "/Users/simonheuberger/dissertation/shiny/questions/treatment"
-app.treat <- "/Users/simonheuberger/dissertation/shiny/survey_experiment/questions/treatment"
 list.of.files.treat <- tools::file_path_sans_ext(list.files(current.treat, pattern = ".txt"))
 for(i in 1:length(list.of.files.treat)){
   temp <- read.csv(paste0(list.of.files.treat[i],".csv"))
@@ -29,24 +25,25 @@ for(i in 1:length(list.of.files.treat)){
 file.copy(paste0(list.of.files.treat, ".txt"), app.treat, overwrite = TRUE)
 
 
-## Test deployed app code after I make any manual changes
+
+#### Test deployed app code after I make any manual changes ####
 setwd(here::here("survey_experiment"))
 library(shiny)
 runApp()
 
 
 
-## (Re-)Deploy app
+#### (Re-)Deploy app ####
 library(rsconnect)
 rsconnect::deployApp(here::here("survey_experiment"))
 Y
 Y
 
-#### Data analysis ####
 
-## Run the loadData() function to download/list/unlist the data from Dropbox; read in the .csv; look at the data
-# make sure wd is the shiny main folder before running this
-setwd(here::here())
+
+#### Data download from Dropbox ####
+# laodData() for .csv files
+setwd(here::here()) # shiny main folder
 library(rdrop2)
 library(plyr)
 outputDir = "alldata.op"
@@ -64,43 +61,23 @@ loadData <- function(outputDir) {         # either alldata.op or alldata.an
   # Write data frame to .csv in local folder /alldata
   write.csv(data, file = paste0(outputDir, "/", outputDir, ".csv"), row.names = F) 
 }
-loadData(outputDir = outputDir)
-alldata <- read.csv(paste0(outputDir, "/", outputDir, ".csv"))
-View(alldata)
+loadData(outputDir = outputDir) # run the function
+alldata <- read.csv(paste0(outputDir, "/", outputDir, ".csv")) # read in the collective .csv
+View(alldata) # look at the data
 
-## Run drop_download() to download the blocked .RData files, load them, look at the data frame 
-
-# make sure wd is the shiny main folder before running this
-setwd(here::here())
+# drop_download() for blocked .RData files
+setwd(here::here()) # shiny main folder
 library(rdrop2)
 drop_auth(rdstoken = "droptoken.rds")
-seqpath <- "seqblock.op"
+seqpath <- "seqblock.op" # these 3 lines for blocked OP data
 seqfile <- "seqhc.op.RData"
 seqfile <- "seqev.op.RData"
-seqpath <- "seqblock.an"
+seqpath <- "seqblock.an" # these 3 lines for blocked AN data
 seqfile <- "seqhc.an.RData"
 seqfile <- "seqev.an.RData"
-drop_download(paste0(seqpath, "/", seqfile), overwrite = TRUE)
-load(seqfile)
-View(bdata$x)
+drop_download(paste0(seqpath, "/", seqfile), overwrite = TRUE) # run function
+load(seqfile) # load the .RData file
+View(bdata$x) # look at the data
 
 
-#### Comparing to the original version of shinyPsych ####
-
-## Run original ShinyPsych code; create app
-# make sure wd is the shiny main folder before running this
-setwd(here::here())
-source("/Library/Frameworks/R.framework/Versions/3.5/Resources/library/ShinyPsych/shiny-examples/Survey/app.R")
-shinyApp(ui = ui, server = server)
-
-
-## Load original questions from folder /extdata if I want to look at some lines
-filee <- "Instructions_Survey"
-filee <- "Demographics"
-filee <- "Survey_Example"
-filee <- "Goodbye"
-fil <- system.file("extdata", paste0(filee,".txt"), package = "ShinyPsych")   # read the text straight from the package
-inst.df <- read.table(fil, header = TRUE, sep = "\t", stringsAsFactors = FALSE)        # create a data frame named "inst.df"
-write.csv(inst.df, file = paste0(filee,".csv"), row.names = F)                # write the data frame to a .csv
-system(paste("open", paste0(filee,".csv")))                                   # open the .csv in Excel where I can edit and save it
 

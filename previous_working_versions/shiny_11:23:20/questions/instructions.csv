@@ -1,6 +1,0 @@
-id,text,page,type,choices,choiceNames,reverse,placeholder,min,max,disabled,checkType,width,height,inline,randomize
-NA,Survey Example,1,h2,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-NA,We are researchers in political science at American University and are conducting a survey on several issues.,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-NA,We need to understand your opinion about these issues. No prior knowledge is required; all issues will be explained briefly before we ask for your opinion.,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-NA,If you want to proceed with the survey please indicate your consent by clicking the checkbox below.,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-checkConsent,I consent to participate.,1,checkboxInput,NA,NA,NA,NA,NA,NA,1,isTRUE,500px,NA,NA,0

@@ -1,6 +1,0 @@
-id,text,page,type,choices,choiceNames,reverse,placeholder,min,max,disabled,checkType,width,height,inline,randomize
-NA,You have answered all the questions in this survey. Thank you!,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-NA,Here is your study completion code:,1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-NA,completion.code,1,h2,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-NA,"Please copy-paste this code into the field below. Once you hit “Continue”, you will be redirected.",1,p,NA,NA,NA,NA,NA,NA,0,NA,500px,NA,NA,0
-workerid,Please enter your study completion code,1,textInput,NA,NA,NA,e.g.; survey-111-222-333,NA,NA,0,NA,500px,NA,NA,0
