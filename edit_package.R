@@ -1,4 +1,12 @@
 
+#### Create Dropbox token (only needs to be done once!) ####
+library(rdrop2)
+drop_auth()
+token <- drop_auth()
+saveRDS(token, file = "droptoken.rds")
+
+
+
 #### Edit questions and copy them over to the app ####
 # Demographics and others
 library(here)
