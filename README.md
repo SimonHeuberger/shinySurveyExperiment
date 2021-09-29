@@ -1,6 +1,10 @@
 # Setting up and designing an online blocking experiment with `R shiny`
 
-As part of my PhD dissertation, I conducted an online survey experiment on framing, particularly the juxtaposition of moral frames and self-interest frames. Framing is the practice of presenting an issue to affect the way people see it. I wanted to find out whether moral frames affect people more than self-interest frames. Moral frames center around value-based arguments, while self-interest frames are about personal gains. I chose the issues of healthcare and environment and set up 5 treatment groups for each issue. In addition to this substantive analysis, I also wanted to test a blocking method. Respondents were blocked and assigned to treatment groups based on two different sets of education categories. Each set of categories was blocked and assigned separately. Because of this blocking requirement, the most convenient survey questionnaire design provider, Qualtrics, was not an option as it did not offer such a feature. I instead opted to design the experiment with `R shiny`, using the outstanding `R` package [ShinyPsych](https://github.com/mdsteiner/ShinyPsych) as a template. This GitHub repository contains the code to set up and run this `shiny` app. In the spirit of open science, I want to make the code publicly available to potentially inspire others who wish to use `R shiny` for their survey experiments. Note: This is not an `R` package designed for generic use. It is merely an adaptation of `ShinyPsych` to work with more complex `R` code that is specifically designed for my research purposes. The code will thus not work 'out of the box'.
+As part of my PhD dissertation, I conducted an online survey experiment on framing, particularly the juxtaposition of moral frames and self-interest frames. Framing is the practice of presenting an issue to affect the way people see it. I wanted to find out whether moral frames affect people more than self-interest frames. Moral frames center around value-based arguments, while self-interest frames are about personal gains. I chose the issues of healthcare and environment and set up 5 treatment groups for each issue. In addition to this substantive analysis, I also wanted to test a blocking method. Respondents were blocked and assigned to treatment groups based on two different sets of education categories. Each set of categories was blocked and assigned separately. Because of this blocking requirement, the most convenient survey questionnaire design provider, Qualtrics, was not an option as it did not offer such a feature. I instead opted to design the experiment with `R shiny`, using the outstanding `R` package [ShinyPsych](https://github.com/mdsteiner/ShinyPsych) as a template. This GitHub repository contains the code to set up and run this `shiny` app. In the spirit of open science, I want to make the code publicly available to potentially inspire others who wish to use `R shiny` for their survey experiments. Below is a screenshot of a survey page with a treatment question on healthcare.
+
+<img src="survey_page.png" align="center" />
+
+*Note*: This is not an `R` package designed for generic use. It is merely an adaptation of `ShinyPsych` to work with more complex `R` code that is specifically designed for my research purposes. The code will thus not work 'out of the box'.
 
 # Required setup
 
@@ -59,10 +63,7 @@ The app code consists of the ui function and the server function. The ui functio
 
 # Usage
 
-Please feel free to use any parts of this code for your own research purposes. If you have any questions about the workings of the code or how to adapt any sections for your needs, you can contact me any time. Similarly, if you would like to know more about my dissertation (though I doubt anyone would want to go down this rabbit hole), please reach out any time.
-
-<img src="survey_page.png" align="center" />
-
+Please feel free to use any parts of this code for your own research purposes. If you have any questions about the workings of the code or how to adapt any sections for your needs, you can contact me any time. Similarly, if you would like to know more about my dissertation (though I doubt you will want to go down that rabbit hole), please feel free reach out any time.
 
 
 
