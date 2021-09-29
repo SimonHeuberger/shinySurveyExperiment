@@ -73,7 +73,6 @@ issue2 <- "ev"
 issue2.check <- paste0(issue2, ".check") # attention check for issue 2
 com <- "comments"
 
-
 # All these short versions are used in the code later with paste, assign etc. That way I only have to adjust things once at the beginning.
 # The only exception are the samples, because otherwise I would keep re-sampling and messing things up.
 # I deleted several lines to create page lists from the original here. They show up later several times with "assign".
@@ -1057,7 +1056,7 @@ server <- function(input, output, session) {
 }
 
 
-#-------------------------------------------- Create the app  --------------------------------------------#
+#-------------------------------------------- Run the app  --------------------------------------------#
 
 shinyApp(ui = ui, server = server)
 

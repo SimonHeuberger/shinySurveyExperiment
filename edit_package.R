@@ -7,7 +7,7 @@ saveRDS(token, file = "droptoken.rds")
 
 
 
-#### Edit questions and copy them over to the app ####
+#### Transform .csv files to .txt and copy them over to the app ####
 # Demographics and others
 library(here)
 current.q <- here::here("questions")
@@ -34,7 +34,7 @@ file.copy(paste0(list.of.files.treat, ".txt"), app.treat, overwrite = TRUE)
 
 
 
-#### Test deployed app code after I make any manual changes ####
+#### Test app code after I make any changes ####
 setwd(here::here("survey_experiment"))
 library(shiny)
 runApp()
@@ -50,7 +50,7 @@ Y
 
 
 #### Data download from Dropbox ####
-# laodData() for .csv files
+# loadData() for .csv files
 setwd(here::here()) # shiny main folder
 library(rdrop2)
 library(plyr)
@@ -64,7 +64,7 @@ loadData <- function(outputDir) {         # either alldata.op or alldata.an
   filePaths <- filesInfo$path_display
   # Turn all files into a list
   data <- lapply(filePaths, drop_read_csv, stringsAsFactors = FALSE)
-  # Concatenate all data together into one data frame
+  # Turn the list into one data frame
   data <- ldply(data, data.frame)
   # Write data frame to .csv in local folder /alldata
   write.csv(data, file = paste0(outputDir, "/", outputDir, ".csv"), row.names = F) 
