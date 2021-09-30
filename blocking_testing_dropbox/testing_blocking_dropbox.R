@@ -1,8 +1,6 @@
 
-#### Ran the below on Jeff's machine, with the file "droptoken.rds" copied over as well ###
+#### Run on remote machine ###
 
-
-rm(list=ls())
 library(rdrop2)
 library(stringr)
 library(blockTools)
@@ -95,7 +93,7 @@ loaddata <- function() {
 loaddata()
 
 
-#### After running the above on Jeff's machine, run this below ####
+#### Copy files over from remote machine, then run ####
 
 df <- read.csv("testing.blocking.dropbox.1000.csv")
 tapply(df$education, df$Tr, mean)
