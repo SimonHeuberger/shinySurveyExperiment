@@ -7,7 +7,7 @@ saveRDS(token, file = "droptoken.rds")
 
 
 
-#### Transform .csv files to .txt and copy them over to the app ####
+#### Convert .csv files to .txt and copy them into to the app ####
 # Demographics and others
 library(here)
 current.q <- here::here("questions")
@@ -49,7 +49,7 @@ Y
 
 
 
-#### Data download from Dropbox ####
+#### Download data from Dropbox ####
 # loadData() for .csv files
 setwd(here::here()) # shiny main folder
 library(rdrop2)
