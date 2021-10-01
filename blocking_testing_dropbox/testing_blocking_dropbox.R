@@ -30,7 +30,7 @@ seqdownload <- function(file) {
 }
 
 n.tr <- 5
-mw.file <- "testing.blocking.dropbox.1000.RData"    # name for .RData with 1,000 'respondents'
+mw.file <- "testing_blocking_dropbox_1000.RData"    # name for .RData with 1,000 'respondents'
 mw.treat <- c("mw.control", "mw.m.opp",   "mw.m.supp",  "mw.p.opp",   "mw.p.supp")
 
 ed.values <- as.numeric(1:5)
@@ -87,7 +87,7 @@ loaddata <- function() {
   # Concatenate all data together into one data frame
   data <- ldply(data, data.frame)
   # Write data frame to .csv
-  write.csv(data, file = "testing.blocking.dropbox.1000.csv", row.names = F) 
+  write.csv(data, file = "testing_blocking_dropbox_1000.csv", row.names = F) 
 }
 
 loaddata()
@@ -95,7 +95,7 @@ loaddata()
 
 #### Copy files over from remote machine, then run ####
 
-df <- read.csv("testing.blocking.dropbox.1000.csv")
+df <- read.csv("testing_blocking_dropbox_1000.csv")
 tapply(df$education, df$Tr, mean)
 # mw.control   mw.m.opp  mw.m.supp   mw.p.opp  mw.p.supp 
 # 3.028169   3.061538   3.012048   3.053140   3.013699
@@ -103,7 +103,7 @@ tapply(df$pid, df$Tr, mean)
 # mw.control   mw.m.opp  mw.m.supp   mw.p.opp  mw.p.supp 
 #2.037559   1.958974   1.969880   1.980676   2.045662
 
-load("testing.blocking.dropbox.1000.RData")
+load("testing_blocking_dropbox_1000.RData")
 tapply(bdata$orig$education, bdata$orig$Tr, mean)
 #mw.control   mw.m.opp  mw.m.supp   mw.p.opp  mw.p.supp 
 # 3.028169   3.061538   3.012048   3.053140   3.013699
